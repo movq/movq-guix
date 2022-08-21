@@ -4,7 +4,7 @@
   (dependencies
     (channel
       (name nonguix)
-      (url "https://gitlab.com/nonguix/nonguix")
+      (url "https://github.com/movq/nonguix")
       (branch "master")
       (introduction
         (make-channel-introduction
