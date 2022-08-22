@@ -120,9 +120,9 @@
                  (setenv "NM" "llvm-nm")
                  (setenv "CC" "clang")
                  (setenv "CXX" "clang++")
-                 (setenv "CFLAGS" "-march=skylake -O3")
-                 (setenv "CXXFLAGS" "-march=skylake -O3")
-                 (setenv "RUSTFLAGS" "-C opt-level=3 -C target-cpu=skylake")
+                 (setenv "CFLAGS" "-march=sandybridge -O3")
+                 (setenv "CXXFLAGS" "-march=sandybridge -O3")
+                 (setenv "RUSTFLAGS" "-C opt-level=3 -C target-cpu=sandybridge")
 
                  (setenv "MOZ_NOSPAM" "1")
 
