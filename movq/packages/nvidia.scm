@@ -512,3 +512,62 @@ packaged in such a way that you can use the transformation option
 
 (define-public replace-mesa
   (package-input-rewriting `((,mesa . ,mesa/fake))))
+
+(define-public cuda-11.3
+  (package
+    (name "cuda")
+    (version "11.3.1")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (string-append
+             "https://developer.download.nvidia.com/compute/cuda/"
+             version "/local_installers/cuda_" version "_465.19.01_linux.run"))
+       (sha256 (base32 "0d19pwcqin76scbw1s5kgj8n0z1p4v1hyfldqmamilyfxycfm4xd"))))
+    (build-system copy-build-system)
+    (arguments
+     (list #:install-plan
+           #~'(("cuda_cudart/targets/x86_64-linux/include" "include")
+               ("cuda_cudart/targets/x86_64-linux/lib" "lib")
+               ("cuda_cuobjdump/bin" "bin")
+               ("cuda_cuxxfilt/bin" "bin")
+               ("cuda_nvcc/bin" "bin")
+               ("cuda_nvcc/nvvm/bin" "bin")
+               ("cuda_nvcc/nvvm/lib64" "lib/nvvm/lib")
+               ("cuda_nvcc/nvvm/include" "lib/nvvm/include")
+               ("cuda_nvcc/targets/x86_64-linux/include" "include")
+               ("cuda_nvcc/targets/x86_64-linux/lib" "lib")
+               ("cuda_nvtx/targets/x86_64-linux/include" "include")
+               ("cuda_nvtx/targets/x86_64-linux/lib" "lib")
+               ("cuda_thrust/targets/x86_64-linux/include" "include"))
+           #:phases
+           #~(modify-phases %standard-phases
+               (replace 'unpack
+                 (lambda _
+                   (invoke "sh" #$source "--keep" "--noexec")
+                   (chdir "pkg/builds")))
+               (add-after 'install 'patch-elf
+                 (lambda _
+                   (let ((ld.so (string-append #$glibc #$(glibc-dynamic-linker)))
+                         (rpath (string-join
+                                 (list "$ORIGIN"
+                                       (string-append #$output "/lib")
+                                       (string-append #$glibc "/lib")
+                                       (string-append #$gcc:lib "/lib"))
+                                 ":")))
+                     (define (patch-elf file)
+                       (unless (string-contains file ".so")
+                         (format #t "Setting interpreter of ~a to ~a~%" file ld.so)
+                         (invoke "patchelf" "--set-interpreter" ld.so file))
+                       (format #t "Setting RPATH to: ~a~%" rpath)
+                       (invoke "patchelf" "--set-rpath" rpath file))
+                     (for-each (lambda (file)
+                                 (when (elf-file? file)
+                                   (patch-elf file)))
+                               (find-files #$output)))))
+               (delete 'strip))))
+    (native-inputs (list patchelf))
+    (home-page #f)
+    (description #f)
+    (synopsis #f)
+    (license #f)))
