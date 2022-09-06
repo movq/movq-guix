@@ -64,6 +64,7 @@
 
 ; Used for closed-source packages
 (define nvidia-version "515.65.01")
+(define nvidia-old-version "470.129.06")
 
 (define-public nvidia-driver
   (package
@@ -289,6 +290,18 @@ Further xorg should be configured by adding:
 (drivers '(\"nvidia\"))} to @code{xorg-configuration}.")
     (license (license:nonfree (format #f "file:///share/doc/nvidia-driver-~a/LICENSE" version)))))
 
+(define-public nvidia-driver-470
+  (package
+	(inherit nvidia-driver)
+    (version nvidia-old-version)
+    (source
+     (origin
+       (uri (format #f "http://us.download.nvidia.com/XFree86/Linux-x86_64/~a/~a.run"
+                    version
+                    (format #f "NVIDIA-Linux-x86_64-~a" version)))
+       (sha256 (base32 "1659127jm3kmj64jhp2mrj8rwvrxnps2k0vn69ik05vf02vi02a1"))
+       (method url-fetch)))))
+
 (define-public nvidia-libs
   (package
     (name "nvidia-libs")
@@ -425,6 +438,26 @@ with the ones usually provided by Mesa.  To use these libraries with
 packages that have been compiled with a mesa output, take a look at the nvda
 package.")
     (license (license:nonfree (format #f "file:///share/doc/nvidia-driver-~a/LICENSE" version)))))
+
+(define-public nvidia-libs-470
+  (package
+	(inherit nvidia-libs)
+    (version nvidia-old-version)
+    (source
+     (origin
+       (uri (format #f "http://us.download.nvidia.com/XFree86/Linux-x86_64/~a/~a.run"
+                    version
+                    (format #f "NVIDIA-Linux-x86_64-~a" version)))
+       (sha256 (base32 "1659127jm3kmj64jhp2mrj8rwvrxnps2k0vn69ik05vf02vi02a1"))
+       (method url-fetch)))
+	(arguments
+	  (substitute-keyword-arguments (package-arguments nvidia-libs)
+		((#:phases phases)
+		 #~(modify-phases #$phases
+			 (replace 'unpack
+			   (lambda _
+                 (invoke "sh" #$source "--extract-only")
+                 (chdir #$(format #f "NVIDIA-Linux-x86_64-~a" version))))))))))
 
 (define-public nvidia-settings
   (package
