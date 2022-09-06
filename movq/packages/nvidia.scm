@@ -273,11 +273,11 @@
        gtk+-2
        kmod
        glibc
-	   libdrm
+       libdrm
        libx11
        libxext
        linux
-	   mesa
+       mesa
        pango
        wayland))
     (home-page "https://www.nvidia.com")
@@ -292,7 +292,7 @@ Further xorg should be configured by adding:
 
 (define-public nvidia-driver-470
   (package
-	(inherit nvidia-driver)
+    (inherit nvidia-driver)
     (version nvidia-old-version)
     (source
      (origin
@@ -441,7 +441,7 @@ package.")
 
 (define-public nvidia-libs-470
   (package
-	(inherit nvidia-libs)
+    (inherit nvidia-libs)
     (version nvidia-old-version)
     (source
      (origin
@@ -450,12 +450,12 @@ package.")
                     (format #f "NVIDIA-Linux-x86_64-~a" version)))
        (sha256 (base32 "1659127jm3kmj64jhp2mrj8rwvrxnps2k0vn69ik05vf02vi02a1"))
        (method url-fetch)))
-	(arguments
-	  (substitute-keyword-arguments (package-arguments nvidia-libs)
-		((#:phases phases)
-		 #~(modify-phases #$phases
-			 (replace 'unpack
-			   (lambda _
+    (arguments
+      (substitute-keyword-arguments (package-arguments nvidia-libs)
+        ((#:phases phases)
+         #~(modify-phases #$phases
+             (replace 'unpack
+               (lambda _
                  (invoke "sh" #$source "--extract-only")
                  (chdir #$(format #f "NVIDIA-Linux-x86_64-~a" version))))))))))
 
@@ -513,7 +513,7 @@ configuration, creating application profiles, gpu monitoring and more.")
   (package
     (inherit nvidia-libs)
     (name "nvda")
-	(version "515.65")
+    (version "515.65")
     (source #f)
     (build-system trivial-build-system)
     (arguments
@@ -559,17 +559,24 @@ packaged in such a way that you can use the transformation option
        (sha256 (base32 "0d19pwcqin76scbw1s5kgj8n0z1p4v1hyfldqmamilyfxycfm4xd"))))
     (build-system copy-build-system)
     (arguments
-     (list #:install-plan
+     (list #:validate-runpath? #f
+           #:install-plan
            #~'(("cuda_cudart/targets/x86_64-linux/include" "include")
                ("cuda_cudart/targets/x86_64-linux/lib" "lib")
                ("cuda_cuobjdump/bin" "bin")
+               ("cuda_cupti/extras/CUPTI/lib64" "lib")
+               ("cuda_cupti/extras/CUPTI/include" "include")
                ("cuda_cuxxfilt/bin" "bin")
                ("cuda_nvcc/bin" "bin")
-               ("cuda_nvcc/nvvm/bin" "bin")
-               ("cuda_nvcc/nvvm/lib64" "lib/nvvm/lib")
-               ("cuda_nvcc/nvvm/include" "lib/nvvm/include")
+               ("cuda_nvcc/nvvm/bin" "nvvm/bin")
+               ("cuda_nvcc/nvvm/lib64" "nvvm/lib")
+               ("cuda_nvcc/nvvm/libdevice" "nvvm/libdevice")
+               ("cuda_nvcc/nvvm/include" "nvvm/include")
                ("cuda_nvcc/targets/x86_64-linux/include" "include")
                ("cuda_nvcc/targets/x86_64-linux/lib" "lib")
+               ("cuda_nvprof/bin" "bin")
+               ("cuda_nvprof/targets/x86_64-linux/include" "include")
+               ("cuda_nvprof/targets/x86_64-linux/lib" "lib")
                ("cuda_nvtx/targets/x86_64-linux/include" "include")
                ("cuda_nvtx/targets/x86_64-linux/lib" "lib")
                ("cuda_thrust/targets/x86_64-linux/include" "include"))
