@@ -559,7 +559,8 @@ packaged in such a way that you can use the transformation option
        (sha256 (base32 "0d19pwcqin76scbw1s5kgj8n0z1p4v1hyfldqmamilyfxycfm4xd"))))
     (build-system copy-build-system)
     (arguments
-     (list #:validate-runpath? #f
+     (list #:strip-binaries? #f ; for some reason this breaks cicc
+           #:validate-runpath? #f
            #:install-plan
            #~'(("cuda_cudart/targets/x86_64-linux/include" "include")
                ("cuda_cudart/targets/x86_64-linux/lib" "lib")
