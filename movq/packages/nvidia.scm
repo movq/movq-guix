@@ -64,7 +64,7 @@
 
 ; Used for closed-source packages
 (define nvidia-version "515.65.01")
-(define nvidia-old-version "470.129.06")
+(define nvidia-old-version "470.141.03")
 
 (define-public nvidia-driver
   (package
@@ -299,7 +299,7 @@ Further xorg should be configured by adding:
        (uri (format #f "http://us.download.nvidia.com/XFree86/Linux-x86_64/~a/~a.run"
                     version
                     (format #f "NVIDIA-Linux-x86_64-~a" version)))
-       (sha256 (base32 "1659127jm3kmj64jhp2mrj8rwvrxnps2k0vn69ik05vf02vi02a1"))
+       (sha256 (base32 "17vhnp6p4ih4mbxa04pb8r1mkq9icpxrgjgxbfk92x1xli3x565y"))
        (method url-fetch)))))
 
 (define-public nvidia-libs
@@ -448,7 +448,7 @@ package.")
        (uri (format #f "http://us.download.nvidia.com/XFree86/Linux-x86_64/~a/~a.run"
                     version
                     (format #f "NVIDIA-Linux-x86_64-~a" version)))
-       (sha256 (base32 "1659127jm3kmj64jhp2mrj8rwvrxnps2k0vn69ik05vf02vi02a1"))
+       (sha256 (base32 "17vhnp6p4ih4mbxa04pb8r1mkq9icpxrgjgxbfk92x1xli3x565y"))
        (method url-fetch)))
     (arguments
       (substitute-keyword-arguments (package-arguments nvidia-libs)
