@@ -73,7 +73,7 @@
   (rust-bootstrapped-package
    rust-1.61 "1.62.1" "0gqkg34ic77dcvsz69qbdng6g3zfhl6hnhx7ha1mjkyrzipvxb3j"))
 
-(define rust-1.63
+(define-public rust-1.63
   (let ((base-rust
          (rust-bootstrapped-package
           rust-1.62 "1.63.0"
