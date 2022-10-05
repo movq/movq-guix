@@ -1,0 +1,44 @@
+diff --git a/src/GLX/libglxmapping.c b/src/GLX/libglxmapping.c
+index 02a83c6..0015c91 100644
+--- a/src/GLX/libglxmapping.c
++++ b/src/GLX/libglxmapping.c
+@@ -32,6 +32,7 @@
+ #include <pthread.h>
+ #include <dlfcn.h>
+ #include <string.h>
++#include <sys/stat.h>
+ 
+ #if defined(HASH_DEBUG)
+ # include <stdio.h>
+@@ -296,6 +297,31 @@ static char *ConstructVendorLibraryFilename(const char *vendorName)
+     char *filename;
+     int ret;
+ 
++    const char* env = NULL;
++    char **tokens;
++    int i;
++    struct stat st;
++
++    env = getenv("GUIX_GL_PATH");
++
++    if (env != NULL)  {
++
++        tokens = SplitString(env, NULL, ":");
++
++        if (tokens != NULL) {
++            for (i=0; tokens[i] != NULL; i++) {
++                ret = glvnd_asprintf(&filename, "%s/libGLX_%s.so.0", tokens[i], vendorName);
++                if (ret >= 0) {
++                    if (stat(filename, &st) == 0) {
++                        free(tokens);
++                        return filename;
++                    }
++                }
++            }
++        }
++        free(tokens);
++    }
++
+     ret = glvnd_asprintf(&filename, "libGLX_%s.so.0", vendorName);
+ 
+     if (ret < 0) {
