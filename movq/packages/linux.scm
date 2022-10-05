@@ -49,8 +49,8 @@
 (define-public wireplumber-current
   (package
     (inherit wireplumber)
-    (name "wireplumber-cpu-patch")
-    (version "0.4.11")
+    (name "wireplumber")
+    (version "0.4.12")
     (source
      (origin
        (method git-fetch)
@@ -59,8 +59,7 @@
               "https://gitlab.freedesktop.org/pipewire/wireplumber.git")
              (commit version)))
        (file-name (git-file-name name version))
-       (patches (list (local-file "patches/wireplumber-cpu-fix.patch")))
        (sha256
-        (base32 "09pg5cki1xn9bwn3bcjdc54z7b4iqkk1dhn560qyjcglq8xg7nnw"))))
+        (base32 "0k6ylqq4r1xzc7bbmwy1qgwpqra8shdvilwm1pvzzvilgyqkm8ys"))))
     (inputs (modify-inputs (package-inputs wireplumber)
               (replace "pipewire" pipewire-current)))))
