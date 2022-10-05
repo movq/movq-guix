@@ -303,130 +303,120 @@ Further xorg should be configured by adding:
        (file-name (string-append "nvidia-driver-" version "-checkout"))))
     (build-system copy-build-system)
     (arguments
-     `(#:phases
-       (modify-phases %standard-phases
-         (replace 'unpack
-           (lambda* (#:key inputs #:allow-other-keys #:rest r)
-             (let ((source (assoc-ref inputs "source")))
-               (invoke "sh" source "--extract-only")
-               (chdir ,(format #f "NVIDIA-Linux-x86_64-~a" version))
-               #t)))
-         (delete 'build)
-         (delete 'check)
-         (add-after 'install 'patch-symlink
-             (lambda* (#:key inputs native-inputs outputs #:allow-other-keys)
-             (use-modules (ice-9 ftw)
-                          (ice-9 regex)
-                          (ice-9 textual-ports))
-             (let* ((out (assoc-ref outputs "out"))
-                    (libdir (string-append out "/lib"))
-                    (bindir (string-append out "/bin"))
-                    (etcdir (string-append out "/etc")))
-               ;; ------------------------------
-               ;; patchelf
-               (let* ((libc (assoc-ref inputs "libc"))
-                      (ld.so (string-append libc ,(glibc-dynamic-linker)))
+     (list #:phases
+           #~(modify-phases %standard-phases
+               (replace 'unpack
+                 (lambda* (#:key inputs #:allow-other-keys #:rest r)
+                   (let ((source (assoc-ref inputs "source")))
+                     (invoke "sh" source "--extract-only")
+                     (chdir #$(format #f "NVIDIA-Linux-x86_64-~a" version))
+                     #t)))
+               (delete 'build)
+               (delete 'check)
+               (add-after 'install 'patch-symlink
+                 (lambda* (#:key inputs native-inputs outputs #:allow-other-keys)
+                   (use-modules (ice-9 ftw)
+                                (ice-9 regex)
+                                (ice-9 textual-ports))
+                   (let* ((out #$output)
+                          (libdir (string-append out "/lib"))
+                          (bindir (string-append out "/bin"))
+                          (etcdir (string-append out "/etc")))
+                     ;; ------------------------------
+                     ;; patchelf
+                     (let* ((ld.so (string-append #$glibc #$(glibc-dynamic-linker)))
+                            (rpath (string-join
+                                    (list "$ORIGIN"
+                                          (string-append out "/lib")
+                                          (string-append #$glibc "/lib")
+                                          (string-append #$atk "/lib")
+                                          (string-append #$cairo "/lib")
+                                          (string-append #$gcc:lib "/lib")
+                                          (string-append #$gdk-pixbuf "/lib")
+                                          (string-append #$glib "/lib")
+                                          (string-append #$gtk+ "/lib")
+                                          (string-append #$gtk+-2 "/lib")
+                                          (string-append #$libdrm "/lib")
+                                          (string-append #$libx11 "/lib")
+                                          (string-append #$libxext "/lib")
+                                          (string-append #$mesa "/lib")
+                                          (string-append #$pango "/lib")
+                                          (string-append #$wayland "/lib"))
+                                    ":")))
+                       (define (patch-elf file)
+                         (format #t "Patching ~a ...~%" file)
+                         (unless (string-contains file ".so")
+                           (invoke "patchelf" "--set-interpreter" ld.so file))
+                         (invoke "patchelf" "--set-rpath" rpath file))
+                       (for-each (lambda (file)
+                                   (when (elf-file? file)
+                                     (patch-elf file)))
+                                 (find-files out  ".*\\.so")))
 
-                      (out (assoc-ref outputs "out"))
-                      (rpath (string-join
-                              (list "$ORIGIN"
-                                    (string-append out "/lib")
-                                    (string-append libc "/lib")
-                                    (string-append (assoc-ref inputs "atk") "/lib")
-                                    (string-append (assoc-ref inputs "cairo") "/lib")
-                                    (string-append (assoc-ref inputs "gcc:lib") "/lib")
-                                    (string-append (assoc-ref inputs "gdk-pixbuf") "/lib")
-                                    (string-append (assoc-ref inputs "glib") "/lib")
-                                    (string-append (assoc-ref inputs "gtk+") "/lib")
-                                    (string-append (assoc-ref inputs "gtk2") "/lib")
-                                    (string-append (assoc-ref inputs "libdrm") "/lib")
-                                    (string-append (assoc-ref inputs "libx11") "/lib")
-                                    (string-append (assoc-ref inputs "libxext") "/lib")
-                                    (string-append (assoc-ref inputs "mesa") "/lib")
-                                    (string-append (assoc-ref inputs "pango") "/lib")
-                                    (string-append (assoc-ref inputs "wayland") "/lib"))
-                              ":")))
-                 (define (patch-elf file)
-                   (format #t "Patching ~a ...~%" file)
-                   (unless (string-contains file ".so")
-                     (invoke "patchelf" "--set-interpreter" ld.so file))
-                   (invoke "patchelf" "--set-rpath" rpath file))
-                 (for-each (lambda (file)
-                             (when (elf-file? file)
-                               (patch-elf file)))
-                           (find-files out  ".*\\.so")))
-
-               ;; ------------------------------
-               ;; Create short name symbolic links
-               (for-each (lambda (file)
-                           (let* ((short (regexp-substitute
-                                          #f
-
-                                          (string-match "([^/]*\\.so).*" file)
-                                          1))
-                                  (major (cond
-                                          ((or (string=? short "libGLX.so")
-                                               (string=? short "libGLX_nvidia.so")
-                                               (string=? short "libEGL_nvidia.so")) "0")
-                                          ((string=? short "libGLESv2.so") "2")
-                                          (else "1")))
-                                  (mid (string-append short "." major))
-                                  (short-file (string-append libdir "/" short))
-                                  (mid-file (string-append libdir "/" mid)))
-                             ;; FIXME the same name, print out warning at least
-                             ;; [X] libEGL.so.1.1.0
-                             ;; [ ] libEGL.so.435.21
-                             (when (not (file-exists? short-file))
-                               (format #t "Linking ~a to ~a ...~%" short file)
-                               (symlink (basename file) short-file))
-                             (when (not (file-exists? mid-file))
-                               (format #t "Linking ~a to ~a ...~%" mid file)
-                               (symlink (basename file) mid-file))))
-                         (find-files libdir "\\.so\\."))
-                ; Fix JSON files
-               (for-each (lambda (file)
-                 (substitute* file
-                   (("libGLX_nvidia\\.so\\.0") (string-append libdir "/libGLX_nvidia.so.0"))
-				   (("libEGL_nvidia\\.so\\.0") (string-append libdir "/libEGL_nvidia.so.0"))
-				   (("libnvidia-egl-wayland\\.so\\.1") (string-append libdir "/libnvidia-egl-wayland.so.1"))
-				   (("libnvidia-egl-gbm\\.so\\.1") (string-append libdir "/libnvidia-egl-gbm\\.so\\.1"))))
-                 (list (string-append out "/share/vulkan/icd.d/nvidia_icd.json")
-                       (string-append out "/share/vulkan/implicit-layer.d/nvidia_layers.json")
-					   (string-append out "/share/glvnd/egl_vendor.d/10_nvidia.json")
-					   (string-append out "/share/egl/external_platform.d/10_nvidia_wayland.json")
-					   (string-append out "/share/egl/external_platform.d/15_nvidia_gbm.json")))
-               #t))))
-       #:install-plan
-        ,@(match (%current-system)
-           ("x86_64-linux" '(`(("." "lib" #:include-regexp ("^./[^/]+\\.so"))
-                               ("nvidia_icd.json" "share/vulkan/icd.d/")
-                               ("nvidia_layers.json" "share/vulkan/implicit-layer.d/")
-							   ("10_nvidia.json" "share/glvnd/egl_vendor.d/")
-							   ("10_nvidia_wayland.json" "share/egl/external_platform.d/")
-							   ("15_nvidia_gbm.json" "share/egl/external_platform.d/"))))
-           ("i686-linux" '(`(("32" "lib" #:include-regexp ("^./[^/]+\\.so")))))
-           (_ '()))))
+                     ;; ------------------------------
+                     ;; Create short name symbolic links
+                     (for-each (lambda (file)
+                                 (let* ((short (regexp-substitute
+                                                #f
+                                                (string-match "([^/]*\\.so).*" file)
+                                                1))
+                                        (major (cond
+                                                ((or (string=? short "libGLX.so")
+                                                     (string=? short "libGLX_nvidia.so")
+                                                     (string=? short "libEGL_nvidia.so")) "0")
+                                                ((string=? short "libGLESv2.so") "2")
+                                                (else "1")))
+                                        (mid (string-append short "." major))
+                                        (short-file (string-append libdir "/" short))
+                                        (mid-file (string-append libdir "/" mid)))
+                                   ;; FIXME the same name, print out warning at least
+                                   ;; [X] libEGL.so.1.1.0
+                                   ;; [ ] libEGL.so.435.21
+                                   (when (not (file-exists? short-file))
+                                     (format #t "Linking ~a to ~a ...~%" short file)
+                                     (symlink (basename file) short-file))
+                                   (when (not (file-exists? mid-file))
+                                     (format #t "Linking ~a to ~a ...~%" mid file)
+                                     (symlink (basename file) mid-file))))
+                               (find-files libdir "\\.so\\."))
+                                        ; Fix JSON files
+                     (for-each (lambda (file)
+                                 (substitute* file
+                                   (("libGLX_nvidia\\.so\\.0") (string-append libdir "/libGLX_nvidia.so.0"))
+		                   (("libEGL_nvidia\\.so\\.0") (string-append libdir "/libEGL_nvidia.so.0"))
+			           (("libnvidia-egl-wayland\\.so\\.1") (string-append libdir "/libnvidia-egl-wayland.so.1"))
+			           (("libnvidia-egl-gbm\\.so\\.1") (string-append libdir "/libnvidia-egl-gbm\\.so\\.1"))))
+                               (list (string-append out "/share/vulkan/icd.d/nvidia_icd.json")
+                                     (string-append out "/share/vulkan/implicit-layer.d/nvidia_layers.json")
+		                     (string-append out "/share/glvnd/egl_vendor.d/10_nvidia.json")
+			             (string-append out "/share/egl/external_platform.d/10_nvidia_wayland.json")
+			             (string-append out "/share/egl/external_platform.d/15_nvidia_gbm.json")))
+                     #t))))
+           #:install-plan
+           (match (%current-system)
+             ("x86_64-linux" #~'(("." "lib" #:include-regexp ("^./[^/]+\\.so") #:exclude ("nvidia_drv.so"))
+                                 ("nvidia_drv.so" "lib/xorg/modules/drivers/")
+                                 ("nvidia_icd.json" "share/vulkan/icd.d/")
+                                 ("nvidia_layers.json" "share/vulkan/implicit-layer.d/")
+			         ("10_nvidia.json" "share/glvnd/egl_vendor.d/")
+			         ("10_nvidia_wayland.json" "share/egl/external_platform.d/")
+			         ("15_nvidia_gbm.json" "share/egl/external_platform.d/")))
+             ("i686-linux" #~'(("32" "lib" #:include-regexp ("^./[^/]+\\.so"))))
+             (_ #~'()))))
     (supported-systems '("i686-linux" "x86_64-linux"))
-    (native-inputs
-     `(("patchelf" ,patchelf)
-       ("perl" ,perl)
-       ("python" ,python-2)
-       ("which" ,which)
-       ("xz" ,xz)))
-    (inputs
-     `(("atk" ,atk)
-       ("cairo" ,cairo)
-       ("gcc:lib" ,gcc "lib")
-       ("gdk-pixbuf" ,gdk-pixbuf)
-       ("glib" ,glib)
-       ("gtk+" ,gtk+)
-       ("gtk2" ,gtk+-2)
-       ("libc" ,glibc)
-       ("libdrm" ,libdrm)
-       ("libx11" ,libx11)
-       ("libxext" ,libxext)
-       ("mesa" ,mesa)
-       ("wayland" ,wayland)))
+    (native-inputs (list patchelf perl python-2 which xz))
+    (inputs (list atk
+                  cairo
+                  gdk-pixbuf
+                  glib
+                  gtk+
+                  gtk+-2
+                  glibc
+                  libdrm
+                  libx11
+                  libxext
+                  mesa
+                  wayland))
     (home-page "https://www.nvidia.com")
     (synopsis "Libraries of the proprietary Nvidia driver")
     (description "These are the libraries of the evil Nvidia driver compatible
