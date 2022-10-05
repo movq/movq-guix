@@ -49,7 +49,7 @@
 (define-public wireplumber-current
   (package
     (inherit wireplumber)
-    (name "wireplumber")
+    (name "wireplumber-cpu-patch")
     (version "0.4.11")
     (source
      (origin
