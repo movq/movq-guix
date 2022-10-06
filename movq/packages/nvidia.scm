@@ -122,20 +122,7 @@
                 (scandir "." (lambda (name)
                                (string-contains name ".so"))))
 
-               (install-file "nvidia_drv.so" (string-append #$output "/lib/xorg/modules/drivers/"))
-               (install-file (string-append "libglxserver_nvidia.so."
-                                            #$(package-version nvidia-driver))
-                             (string-append #$output "/lib/xorg/modules/extensions/"))
-
-               ;; ICD Loader for OpenCL
-               (let ((file (string-append etcdir "/OpenCL/vendors/nvidia.icd")))
-                 (mkdir-p (string-append etcdir "/OpenCL/vendors/"))
-                 (call-with-output-file file
-                   (lambda (port)
-                     (display (string-append #$output "/lib/libnvidia-opencl.so.1") port)))
-                 (chmod file #o555))
-
-               ;; Add udev rules for nvidia
+                           ;; Add udev rules for nvidia
                (let ((rulesdir (string-append #$output "/lib/udev/rules.d/"))
                      (rules    (string-append #$output "/lib/udev/rules.d/90-nvidia.rules"))
                      (sh       (string-append #$bash-minimal "/bin/sh"))
@@ -159,33 +146,7 @@
                                   "RUN+=\"" sh " -c '" mknod " -m 666 /dev/nvidia-uvm-tools c $$(" grep " nvidia-uvm /proc/devices | " cut " -d \\  -f 1) 0'\"" "\n" )))))
 
                ;; ------------------------------
-               ;; Add a file to load nvidia drivers
-               (mkdir-p bindir)
-               (let ((file (string-append bindir "/nvidia-insmod"))
-                     (moddir (string-append "/lib/modules/" (utsname:release (uname)) "-gnu/extra")))
-                 (call-with-output-file file
-                   (lambda (port)
-                     (put-string port (string-append "#!" (assoc-ref inputs "bash-minimal") "/bin/sh" "\n"
-                                                     "modprobe ipmi_devintf"                   "\n"
-                                                     "insmod " #$output moddir "/nvidia.ko"         "\n"
-                                                     "insmod " #$output moddir "/nvidia-modeset.ko" "\n"
-                                                     "insmod " #$output moddir "/nvidia-uvm.ko"     "\n"
-                                                     "insmod " #$output moddir "/nvidia-drm.ko"     "\n"))))
-                 (chmod file #o555))
-               (let ((file (string-append bindir "/nvidia-rmmod")))
-                 (call-with-output-file file
-                   (lambda (port)
-                     (put-string port (string-append "#!" #$bash-minimal "/bin/sh" "\n"
-                                                     "rmmod " "nvidia-drm"     "\n"
-                                                     "rmmod " "nvidia-uvm"     "\n"
-                                                     "rmmod " "nvidia-modeset" "\n"
-                                                     "rmmod " "nvidia"         "\n"
-                                                     "rmmod " "ipmi_devintf"   "\n"))))
-                 (chmod file #o555))
-
-               ;; ------------------------------
                ;;  nvidia-smi
-
                (install-file "nvidia-smi" bindir)
 
                ;; ------------------------------
@@ -222,34 +183,7 @@
                  (patch-elf (string-append bindir "/" "nvidia-smi")))
 
                ;; ------------------------------
-               ;; Create short name symbolic links
-               (for-each (lambda (file)
-                           (let* ((short (regexp-substitute
-                                          #f
-                                          (string-match "([^/]*\\.so).*" file)
-                                          1))
-                                  (major (cond
-                                          ((or (string=? short "libGLX.so")
-                                               (string=? short "libGLX_nvidia.so")
-                                               (string=? short "libEGL_nvidia.so")) "0")
-                                          ((string=? short "libGLESv2.so") "2")
-                                          (else "1")))
-                                  (mid (string-append short "." major))
-                                  (short-file (string-append libdir "/" short))
-                                  (mid-file (string-append libdir "/" mid)))
-                             ;; FIXME the same name, print out warning at least
-                             ;; [X] libEGL.so.1.1.0
-                             ;; [ ] libEGL.so.435.21
-                             (when (not (file-exists? short-file))
-                               (format #t "Linking ~a to ~a ...~%" short file)
-                               (symlink (basename file) short-file))
-                             (when (not (file-exists? mid-file))
-                               (format #t "Linking ~a to ~a ...~%" mid file)
-                               (symlink (basename file) mid-file))))
-                         (find-files libdir "\\.so\\."))
-               (symlink (string-append "libglxserver_nvidia.so."
-                                       #$(package-version nvidia-driver))
-                        (string-append #$output "/lib/xorg/modules/extensions/" "libglxserver_nvidia.so"))))))))
+              ))))))
     (supported-systems '("x86_64-linux"))
     (native-inputs
      (list
@@ -356,28 +290,29 @@ Further xorg should be configured by adding:
                      ;; ------------------------------
                      ;; Create short name symbolic links
                      (for-each (lambda (file)
-                                 (let* ((short (regexp-substitute
-                                                #f
-                                                (string-match "([^/]*\\.so).*" file)
-                                                1))
-                                        (major (cond
-                                                ((or (string=? short "libGLX.so")
-                                                     (string=? short "libGLX_nvidia.so")
-                                                     (string=? short "libEGL_nvidia.so")) "0")
-                                                ((string=? short "libGLESv2.so") "2")
-                                                (else "1")))
-                                        (mid (string-append short "." major))
-                                        (short-file (string-append libdir "/" short))
-                                        (mid-file (string-append libdir "/" mid)))
-                                   ;; FIXME the same name, print out warning at least
-                                   ;; [X] libEGL.so.1.1.0
-                                   ;; [ ] libEGL.so.435.21
-                                   (when (not (file-exists? short-file))
-                                     (format #t "Linking ~a to ~a ...~%" short file)
-                                     (symlink (basename file) short-file))
-                                   (when (not (file-exists? mid-file))
-                                     (format #t "Linking ~a to ~a ...~%" mid file)
-                                     (symlink (basename file) mid-file))))
+                                 (when (not (string-contains file "libglxserver_nvidia"))
+                                   (let* ((short (regexp-substitute
+                                                  #f
+                                                  (string-match "([^/]*\\.so).*" file)
+                                                  1))
+                                          (major (cond
+                                                  ((or (string=? short "libGLX.so")
+                                                       (string=? short "libGLX_nvidia.so")
+                                                       (string=? short "libEGL_nvidia.so")) "0")
+                                                  ((string=? short "libGLESv2.so") "2")
+                                                  (else "1")))
+                                          (mid (string-append short "." major))
+                                          (short-file (string-append libdir "/" short))
+                                          (mid-file (string-append libdir "/" mid)))
+                                     ;; FIXME the same name, print out warning at least
+                                     ;; [X] libEGL.so.1.1.0
+                                     ;; [ ] libEGL.so.435.21
+                                     (when (not (file-exists? short-file))
+                                       (format #t "Linking ~a to ~a ...~%" short file)
+                                       (symlink (basename file) short-file))
+                                     (when (not (file-exists? mid-file))
+                                       (format #t "Linking ~a to ~a ...~%" mid file)
+                                       (symlink (basename file) mid-file)))))
                                (find-files libdir "\\.so\\."))
                                         ; Fix JSON files
                      (for-each (lambda (file)
@@ -391,10 +326,16 @@ Further xorg should be configured by adding:
 		                     (string-append out "/share/glvnd/egl_vendor.d/10_nvidia.json")
 			             (string-append out "/share/egl/external_platform.d/10_nvidia_wayland.json")
 			             (string-append out "/share/egl/external_platform.d/15_nvidia_gbm.json")))
+                     (symlink (string-append "libglxserver_nvidia.so."
+                                             #$(package-version nvidia-driver))
+                              (string-append #$output "/lib/xorg/modules/extensions/" "libglxserver_nvidia.so"))
                      #t))))
            #:install-plan
            (match (%current-system)
-             ("x86_64-linux" #~'(("." "lib" #:include-regexp ("^./[^/]+\\.so") #:exclude ("nvidia_drv.so"))
+             ("x86_64-linux" #~'(("." "lib" #:include-regexp ("^./[^/]+\\.so")
+                                  #:exclude ("nvidia_drv.so")
+                                  #:exclude-regexp ("libglxserver_nvidia.so.*"))
+                                 ("." "lib/xorg/modules/extensions" #:include-regexp ("libglxserver_nvidia\\.so\\.*"))
                                  ("nvidia_drv.so" "lib/xorg/modules/drivers/")
                                  ("nvidia_icd.json" "share/vulkan/icd.d/")
                                  ("nvidia_layers.json" "share/vulkan/implicit-layer.d/")
