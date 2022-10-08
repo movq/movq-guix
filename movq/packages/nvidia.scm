@@ -506,6 +506,12 @@ packaged in such a way that you can use the transformation option
             #~(list (string-append "PREFIX=" #$output))
             #:phases
             #~(modify-phases %standard-phases
+                (add-before 'build 'set-dlopen-paths
+                  (lambda _
+                    (substitute* "include/ffnvcodec/dynlink_loader.h"
+                      (("libcuda\\.so\\.1" all) (string-append #$nvidia-libs "/lib/" all))
+                      (("libnvcuvid\\.so\\.1" all) (string-append #$nvidia-libs "/lib/" all))
+                      (("libnvidia-encode\\.so\\.1" all) (string-append #$nvidia-libs "/lib/" all)))))
                 (delete 'configure))))
     (home-page #f)
     (synopsis #f)
@@ -529,10 +535,6 @@ packaged in such a way that you can use the transformation option
     (arguments
       (list #:phases
             #~(modify-phases %standard-phases
-                (add-before 'configure 'set-ldflags
-                  (lambda _
-                    ;; needed for libcuda.so.1
-                    (setenv "LDFLAGS" (string-append "-Wl,-rpath=" #$nvidia-libs "/lib"))))
                 (add-before 'configure 'link-pthread
                   (lambda _
                     (substitute* "meson.build"
