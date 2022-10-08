@@ -529,12 +529,16 @@ packaged in such a way that you can use the transformation option
     (arguments
       (list #:phases
             #~(modify-phases %standard-phases
+                (add-before 'configure 'set-ldflags
+                  (lambda _
+                    ;; needed for libcuda.so.1
+                    (setenv "LDFLAGS" (string-append "-Wl,-rpath=" #$nvidia-libs "/lib"))))
                 (add-before 'configure 'link-pthread
                   (lambda _
                     (substitute* "meson.build"
                       (("^libva_deps = .*\n" all) (string-append all "thread_dep = dependency('threads')\n"))
                       (("dl_dep,\n" all) (string-append all "thread_dep\n"))))))))
-    (inputs (list libglvnd-guix gst-plugins-bad nv-codec-headers libva))
+    (inputs (list libglvnd-guix gst-plugins-bad nv-codec-headers libva nvidia-libs))
     (native-inputs (list pkg-config))
     (native-search-paths
      (list (search-path-specification
