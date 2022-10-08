@@ -63,7 +63,7 @@
   #:use-module (srfi srfi-1))
 
 ; Used for closed-source packages
-(define nvidia-version "515.65.01")
+(define nvidia-version "515.76")
 
 (define-public nvidia-driver
   (package
@@ -74,7 +74,7 @@
        (uri (format #f "http://us.download.nvidia.com/XFree86/Linux-x86_64/~a/~a.run"
                     version
                     (format #f "NVIDIA-Linux-x86_64-~a" version)))
-       (sha256 (base32 "1scmwjp2cld1hw817dq3w448sp10h1k8sbknph6a0np6np2xv4h4"))
+       (sha256 (base32 "0i5zyvlsjnfkpfqhw6pklp0ws8nndyiwxrg4pj04jpwnxf6a38n6"))
        (method url-fetch)
        (file-name (string-append "nvidia-driver-" version "-checkout"))))
     (build-system linux-module-build-system)
@@ -113,15 +113,6 @@
              (let* ((libdir (string-append #$output "/lib"))
                     (bindir (string-append #$output "/bin"))
                     (etcdir (string-append #$output "/etc")))
-               ;; ------------------------------
-               ;; Copy .so files
-               (for-each
-                (lambda (file)
-                  (format #t "Copying '~a'...~%" file)
-                  (install-file file libdir))
-                (scandir "." (lambda (name)
-                               (string-contains name ".so"))))
-
                            ;; Add udev rules for nvidia
                (let ((rulesdir (string-append #$output "/lib/udev/rules.d/"))
                      (rules    (string-append #$output "/lib/udev/rules.d/90-nvidia.rules"))
@@ -144,45 +135,6 @@
                                   "RUN+=\"" sh " -c '" mknod " -m 666 /dev/nvidia-uvm c $$(" grep " nvidia-uvm /proc/devices | " cut " -d \\  -f 1) 0'\"" "\n"
                                   "KERNEL==\"nvidia_uvm\", "
                                   "RUN+=\"" sh " -c '" mknod " -m 666 /dev/nvidia-uvm-tools c $$(" grep " nvidia-uvm /proc/devices | " cut " -d \\  -f 1) 0'\"" "\n" )))))
-
-               ;; ------------------------------
-               ;;  nvidia-smi
-               (install-file "nvidia-smi" bindir)
-
-               ;; ------------------------------
-               ;; patchelf
-               (let* ((ld.so (string-append #$glibc #$(glibc-dynamic-linker)))
-
-                      (rpath (string-join
-                              (list "$ORIGIN"
-                                    (string-append #$output "/lib")
-                                    (string-append #$glibc "/lib")
-                                    (string-append #$libdrm "/lib")
-                                    (string-append #$libx11 "/lib")
-                                    (string-append #$libxext "/lib")
-                                    (string-append #$mesa "/lib")
-                                    (string-append #$pango "/lib")
-                                    (string-append #$gtk+ "/lib")
-                                    (string-append #$gtk+-2 "/lib")
-                                    (string-append #$atk "/lib")
-                                    (string-append #$glib "/lib")
-                                    (string-append #$cairo "/lib")
-                                    (string-append #$gdk-pixbuf "/lib")
-                                    (string-append #$wayland "/lib")
-                                    (string-append #$gcc:lib "/lib"))
-                              ":")))
-                 (define (patch-elf file)
-                   (format #t "Patching ~a ...~%" file)
-                   (unless (string-contains file ".so")
-                     (invoke "patchelf" "--set-interpreter" ld.so file))
-                   (invoke "patchelf" "--set-rpath" rpath file))
-                 (for-each (lambda (file)
-                             (when (elf-file? file)
-                               (patch-elf file)))
-                           (find-files #$output  ".*\\.so"))
-                 (patch-elf (string-append bindir "/" "nvidia-smi")))
-
-               ;; ------------------------------
               ))))))
     (supported-systems '("x86_64-linux"))
     (native-inputs
@@ -232,7 +184,7 @@ Further xorg should be configured by adding:
        (uri (format #f "http://us.download.nvidia.com/XFree86/Linux-x86_64/~a/~a.run"
                     version
                     (format #f "NVIDIA-Linux-x86_64-~a" version)))
-       (sha256 (base32 "1scmwjp2cld1hw817dq3w448sp10h1k8sbknph6a0np6np2xv4h4"))
+       (sha256 (base32 "0i5zyvlsjnfkpfqhw6pklp0ws8nndyiwxrg4pj04jpwnxf6a38n6"))
        (method url-fetch)
        (file-name (string-append "nvidia-driver-" version "-checkout"))))
     (build-system copy-build-system)
@@ -272,6 +224,7 @@ Further xorg should be configured by adding:
                                           (string-append #$gtk+-2 "/lib")
                                           (string-append #$libdrm "/lib")
                                           (string-append #$libx11 "/lib")
+                                          (string-append #$libxcb "/lib")
                                           (string-append #$libxext "/lib")
                                           (string-append #$mesa "/lib")
                                           (string-append #$pango "/lib")
@@ -356,6 +309,7 @@ Further xorg should be configured by adding:
                   libdrm
                   libx11
                   libxext
+                  libxcb
                   mesa
                   wayland))
     (home-page "https://www.nvidia.com")
