@@ -26,7 +26,7 @@
 
 (define-public libepoxy-glvnd
   (package/inherit libepoxy
-    (name "libepoxy")
+    (name "libepoxy-glvnd")
     (arguments
      (substitute-keyword-arguments (package-arguments libepoxy)
        ((#:phases phases)
