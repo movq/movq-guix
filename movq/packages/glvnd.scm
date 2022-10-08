@@ -8,7 +8,7 @@
   #:use-module (gnu packages gl)
   #:use-module (gnu packages xdisorg))
 
-(define libglvnd-guix
+(define-public libglvnd-guix
   (package/inherit libglvnd
     (name "libglvnd")
     (version "1.5.0")
@@ -23,6 +23,26 @@
         (base32 "1nvlcwzivrdchp70i2l7ic7qdlsdmlsb0ckydscr43rhqldswx69"))
        (patches
         (list (local-file "patches/glvnd-dlopen-path.patch")))))))
+
+(define-public libepoxy-glvnd
+  (package/inherit libepoxy
+    (name "libepoxy")
+    (arguments
+     (substitute-keyword-arguments (package-arguments libepoxy)
+       ((#:phases phases)
+        `(modify-phases ,phases
+           (replace 'patch-paths
+           (lambda* (#:key inputs #:allow-other-keys)
+             (let ((python (assoc-ref inputs "python"))
+                   (glvnd (assoc-ref inputs "libglvnd")))
+               (substitute* "src/gen_dispatch.py"
+                 (("/usr/bin/env python") python))
+               (substitute* (find-files "." "\\.[ch]$")
+                 (("libGL.so.1") (string-append glvnd "/lib/libGL.so.1"))
+                 (("libEGL.so.1") (string-append glvnd "/lib/libEGL.so.1")))
+               #t)))))))
+    (propagated-inputs (list libglvnd))
+    (description (string-concatenate (list (package-description libepoxy) " Glvnd-enabled variant.")))))
 
 (define-public libdrm-current
   (package/inherit libdrm
