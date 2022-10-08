@@ -41,7 +41,7 @@
                  (("libGL.so.1") (string-append glvnd "/lib/libGL.so.1"))
                  (("libEGL.so.1") (string-append glvnd "/lib/libEGL.so.1")))
                #t)))))))
-    (propagated-inputs (list libglvnd))
+    (propagated-inputs (list libglvnd libx11))
     (description (string-concatenate (list (package-description libepoxy) " Glvnd-enabled variant.")))))
 
 (define-public libdrm-current

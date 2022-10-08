@@ -198,6 +198,7 @@ Further xorg should be configured by adding:
                      (chdir #$(format #f "NVIDIA-Linux-x86_64-~a" version))
                      #t)))
                (delete 'build)
+               (delete 'strip)
                (delete 'check)
                (add-after 'install 'patch-symlink
                  (lambda* (#:key inputs native-inputs outputs #:allow-other-keys)
@@ -238,7 +239,8 @@ Further xorg should be configured by adding:
                        (for-each (lambda (file)
                                    (when (elf-file? file)
                                      (patch-elf file)))
-                                 (find-files out  ".*\\.so")))
+                                 (find-files out  ".*\\.so"))
+                       (patch-elf (string-append #$output "/bin/nvidia-smi")))
 
                      ;; ------------------------------
                      ;; Create short name symbolic links
@@ -290,6 +292,7 @@ Further xorg should be configured by adding:
                                   #:exclude-regexp ("libglxserver_nvidia.so.*"))
                                  ("." "lib/xorg/modules/extensions" #:include-regexp ("libglxserver_nvidia\\.so\\.*"))
                                  ("nvidia_drv.so" "lib/xorg/modules/drivers/")
+                                 ("nvidia-smi" "bin/")
                                  ("nvidia_icd.json" "share/vulkan/icd.d/")
                                  ("nvidia_layers.json" "share/vulkan/implicit_layer.d/")
 			         ("10_nvidia.json" "share/glvnd/egl_vendor.d/")
