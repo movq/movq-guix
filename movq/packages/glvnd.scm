@@ -6,7 +6,8 @@
   #:use-module (guix utils)
   #:use-module (gnu packages freedesktop)
   #:use-module (gnu packages gl)
-  #:use-module (gnu packages xdisorg))
+  #:use-module (gnu packages xdisorg)
+  #:use-module (gnu packages xorg))
 
 (define-public libglvnd-guix
   (package/inherit libglvnd
