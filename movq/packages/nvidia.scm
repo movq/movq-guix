@@ -33,6 +33,7 @@
   #:use-module ((guix licenses) #:prefix license-gnu:)
   #:use-module ((nonguix licenses) #:prefix license:)
   #:use-module (guix build-system linux-module)
+  #:use-module (guix build-system meson)
   #:use-module (guix build-system copy)
   #:use-module (guix build-system gnu)
   #:use-module (guix build-system trivial)
@@ -45,6 +46,7 @@
   #:use-module (gnu packages gcc)
   #:use-module (gnu packages gl)
   #:use-module (gnu packages glib)
+  #:use-module (gnu packages gstreamer)
   #:use-module (gnu packages gtk)
   #:use-module (gnu packages linux)
   #:use-module (gnu packages m4)
@@ -55,6 +57,7 @@
   #:use-module (gnu packages xdisorg)
   #:use-module (gnu packages xorg)
   #:use-module (nongnu packages linux)
+  #:use-module (movq packages glvnd)
   #:use-module (ice-9 match)
   #:use-module (ice-9 regex)
   #:use-module (ice-9 format)
@@ -471,6 +474,65 @@ packaged in such a way that you can use the transformation option
                                    (patch-elf file)))
                                (find-files #$output))))))))
     (native-inputs (list patchelf))
+    (home-page #f)
+    (description #f)
+    (synopsis #f)
+    (license #f)))
+
+(define-public nv-codec-headers
+  (package
+    (name "nv-codec-headers")
+    (version "11.1.5.1")
+    (source
+      (origin
+        (method git-fetch)
+        (uri (git-reference
+               (url "https://git.videolan.org/git/ffmpeg/nv-codec-headers.git")
+               (commit (string-append "n" version))))
+        (file-name (git-file-name name version))
+        (sha256
+          (base32 "05a6dfv6yackcyx7ysxfzf2h768y63ih8icdkkzi8bwq7hp8lcy9"))))
+    (build-system gnu-build-system)
+    (arguments
+      (list #:tests? #f
+            #:make-flags
+            #~(list (string-append "PREFIX=" #$output))
+            #:phases
+            #~(modify-phases %standard-phases
+                (delete 'configure))))
+    (home-page #f)
+    (synopsis #f)
+    (description #f)
+    (license #f)))
+
+(define-public nvidia-vaapi-driver
+  (package
+    (name "nvidia-vaapi-driver")
+    (version "0.0.6")
+    (source
+      (origin
+        (method git-fetch)
+        (uri (git-reference
+               (url "https://github.com/elFarto/nvidia-vaapi-driver")
+               (commit (string-append "v" version))))
+        (file-name (git-file-name name version))
+        (sha256
+          (base32 "0gpsf35dlfiw14zzrws1mp8n343z3zmhvvwjxl6251il7fmc5lzz"))))
+    (build-system meson-build-system)
+    (arguments
+      (list #:phases
+            #~(modify-phases %standard-phases
+                (add-before 'configure 'link-pthread
+                  (lambda _
+                    (substitute* "meson.build"
+                      (("^libva_deps = .*\n" all) (string-append all "thread_dep = dependency('threads')\n"))
+                      (("dl_dep,\n" all) (string-append all "thread_dep\n"))))))))
+    (inputs (list libglvnd-guix gst-plugins-bad nv-codec-headers libva))
+    (native-inputs (list pkg-config))
+    (native-search-paths
+     (list (search-path-specification
+            (variable "LIBVA_DRIVERS_PATH")
+            (files '("lib/dri")))))
     (home-page #f)
     (description #f)
     (synopsis #f)
