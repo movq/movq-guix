@@ -6,6 +6,7 @@
   #:use-module (guix utils)
   #:use-module (gnu packages freedesktop)
   #:use-module (gnu packages gl)
+  #:use-module (gnu packages gstreamer)
   #:use-module (gnu packages xdisorg)
   #:use-module (gnu packages xorg))
 
@@ -115,8 +116,18 @@
                                      (format #t "chosen ~a ~%" file)
                                      file))))))
     (description "libglvnd intended to be grafted in place of mesa.")
-    (inputs
+    (propagated-inputs
      (list mesa-glvnd
            libglvnd-guix))
     (outputs '("out"))))
 
+(define gst-plugins-base-without-tests
+  (package/inherit gst-plugins-base
+    (arguments
+      (substitute-keyword-arguments (package-arguments gst-plugins-base)
+        ((#:tests? _ #f) #f)))))
+
+(define-public replace-mesa
+  (package-input-rewriting `((,mesa . ,glvd)
+			     (,libepoxy . ,libepoxy-glvnd)
+			     (,gst-plugins-base . ,gst-plugins-base-without-tests))))

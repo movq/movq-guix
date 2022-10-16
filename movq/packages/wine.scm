@@ -62,11 +62,12 @@
   #:use-module (gnu packages vulkan)
   #:use-module (gnu packages wine)
   #:use-module (gnu packages xorg)
+  #:use-module (movq packages glvnd)
   #:use-module (ice-9 match)
   )
 
 (define-public lutris-wine
-  (package
+  (replace-mesa (package
     (name "lutris-wine")
     (version "7.2-2")
     (source
@@ -175,10 +176,10 @@ integrate Windows applications into your desktop.")
     ;; Any platform should be able to build wine, but based on '#:system' these
     ;; are thr ones we currently support.
     (supported-systems '("i686-linux" "x86_64-linux" "armhf-linux"))
-    (license license:lgpl2.1+)))
+    (license license:lgpl2.1+))))
 
 (define-public lutris-wine64
-  (package
+  (replace-mesa (package
     (inherit lutris-wine)
     (name "lutris-wine64")
     (inputs (modify-inputs (package-inputs lutris-wine)
@@ -238,7 +239,7 @@ integrate Windows applications into your desktop.")
                                  #:system)
                                (package-arguments wine))))
     (synopsis "Implementation of the Windows API (WoW64 version)")
-    (supported-systems '("x86_64-linux" "aarch64-linux"))))
+    (supported-systems '("x86_64-linux" "aarch64-linux")))))
 
 (define mingw-toolchain-i686
   (package
