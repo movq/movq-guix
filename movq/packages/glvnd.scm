@@ -74,6 +74,7 @@
         (base32 "1cmk9qfp2bf8gqrs9bczn32bw9vkh9yvbs2drsv9xmpyp3gaqfcq"))))
     (arguments
      (substitute-keyword-arguments (package-arguments mesa)
+       ((#:tests? _ #f) #f)
        ((#:configure-flags flags)
         `(cons* "-Dglvnd=true"
                 "-Dgallium-drivers=iris,swrast,virgl,zink"
