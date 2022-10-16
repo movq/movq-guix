@@ -313,17 +313,18 @@ integrate Windows applications into your desktop.")
   ;; This package provides 32-bit dxvk libraries on 64-bit systems.
   (package
     (name "dxvk32")
-    (version "1.10.3")
+    (version "1.10.1-952-g69d7af42")
     (home-page "https://github.com/doitsujin/dxvk/")
     (source (origin
               (method git-fetch)
               (uri (git-reference
                     (url home-page)
-                    (commit (string-append "v" version))))
+                    (commit (string-append "v" version))
+                    (recursive? #t)))
               (file-name (git-file-name name version))
               (sha256
                (base32
-                "0qcjfcij6qx372ac1h382bg9spf2b6nfk8zzmimnl93kbk5dkpag"))))
+                "0xcpxnwra6l569qfb4d611b467wicfdmwawc9r2mlrl24mhczy7h"))))
     (build-system meson-build-system)
     (arguments
      (list #:system "i686-linux"
@@ -445,7 +446,7 @@ Use @command{setup_dxvk} to install the required libraries to a Wine prefix.")
 (define vkd3d-proton32
   (package
     (name "vkd3d-proton32")
-    (version "2.6")
+    (version "2.6-361-gf6843ac2")
     (source (origin
               (method git-fetch)
               (uri (git-reference
@@ -453,7 +454,7 @@ Use @command{setup_dxvk} to install the required libraries to a Wine prefix.")
                     (commit (string-append "v" version))
                     (recursive? #t)))
               (file-name (git-file-name name version))
-              (sha256 (base32 "05q2fla04ylq2825rlzr63ipjrkdmac20vm64wcczi033bvbrkj1"))))
+              (sha256 (base32 "0hq51wfnr4z79fbkzscrlqx0rksky8sxw6jbi39dqq63drc40377"))))
     (build-system meson-build-system)
     (arguments
      (list #:configure-flags
@@ -463,7 +464,7 @@ Use @command{setup_dxvk} to install the required libraries to a Wine prefix.")
                (add-after 'unpack 'fix-git-version
                  (lambda _
                    (substitute* "meson.build"
-                     (("command : .*abbrev.*$") "command : ['echo', '3e5aab6fb3e18f8'],"))))
+                     (("command : .*abbrev.*$") "command : ['echo', 'f6843ac2'],"))))
                (add-before 'configure 'setenv
                  (lambda _
                    (setenv "CROSS_LIBRARY_PATH"
@@ -508,7 +509,7 @@ Use @command{setup_dxvk} to install the required libraries to a Wine prefix.")
                (add-after 'unpack 'fix-git-version
                  (lambda _
                    (substitute* "meson.build"
-                     (("command : .*abbrev.*$") "command : ['echo', '3e5aab6fb3e18f8'],"))))
+                     (("command : .*abbrev.*$") "command : ['echo', 'f6843ac2'],"))))
                (add-before 'configure 'setenv
                  (lambda _
                    (setenv "CROSS_LIBRARY_PATH"
