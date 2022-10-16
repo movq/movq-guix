@@ -148,6 +148,9 @@
                 ;; configure first respects CONFIG_SHELL, clobbers SHELL later.
                 (("/bin/sh")
                  (which "bash")))))
+		  (add-before 'configure 'setenv
+			(lambda _
+			  (setenv "CFLAGS" "-gdwarf-2")))
           (add-after 'configure 'patch-dlopen-paths
             ;; Hardcode dlopened sonames to absolute paths.
             (lambda _
@@ -197,6 +200,9 @@ integrate Windows applications into your desktop.")
                 ;; configure first respects CONFIG_SHELL, clobbers SHELL later.
                 (("/bin/sh")
                  (which "bash")))))
+          (add-before 'configure 'setenv
+		    (lambda _
+		      (setenv "CFLAGS" "-gdwarf-2")))
           (add-after 'patch-generated-file-shebangs 'patch-makedep
             (lambda* (#:key outputs #:allow-other-keys)
               (substitute* "tools/makedep.c"
