@@ -134,7 +134,8 @@
       #:tests? #f
 
       #:configure-flags
-      #~(list (string-append "LDFLAGS=-Wl,-rpath=" #$output "/lib/wine32"))
+      #~(list (string-append "LDFLAGS=-Wl,-rpath=" #$output "/lib/wine32")
+	      "--disable-tests")
 
       #:make-flags
       #~(list "SHELL=bash"
@@ -148,9 +149,9 @@
                 ;; configure first respects CONFIG_SHELL, clobbers SHELL later.
                 (("/bin/sh")
                  (which "bash")))))
-		  (add-before 'configure 'setenv
-			(lambda _
-			  (setenv "CFLAGS" "-gdwarf-2")))
+                  (add-before 'configure 'setenv
+                        (lambda _
+                          (setenv "CFLAGS" "-O2 -gdwarf-2")))
           (add-after 'configure 'patch-dlopen-paths
             ;; Hardcode dlopened sonames to absolute paths.
             (lambda _
@@ -201,8 +202,8 @@ integrate Windows applications into your desktop.")
                 (("/bin/sh")
                  (which "bash")))))
           (add-before 'configure 'setenv
-		    (lambda _
-		      (setenv "CFLAGS" "-gdwarf-2")))
+                    (lambda _
+                      (setenv "CFLAGS" "-O2 -gdwarf-2")))
           (add-after 'patch-generated-file-shebangs 'patch-makedep
             (lambda* (#:key outputs #:allow-other-keys)
               (substitute* "tools/makedep.c"
@@ -240,12 +241,45 @@ integrate Windows applications into your desktop.")
                    (format #f "~a\"~a\"" defso (find-so soname))))))))
       #:configure-flags
       #~(list "--enable-win64"
-              (string-append "LDFLAGS=-Wl,-rpath=" #$output "/lib/wine64"))
+              (string-append "LDFLAGS=-Wl,-rpath=" #$output "/lib/wine64")
+	      "--disable-tests")
       (strip-keyword-arguments '(#:configure-flags #:make-flags #:phases
                                  #:system)
                                (package-arguments wine))))
     (synopsis "Implementation of the Windows API (WoW64 version)")
     (supported-systems '("x86_64-linux" "aarch64-linux")))))
+
+
+;;; GE
+(define-public ge-wine
+  (package/inherit lutris-wine
+    (name "ge-wine")
+    (version "7-31")
+    (source
+      (origin
+            (method git-fetch)
+            (uri (git-reference
+                       (url "https://github.com/gloriouseggroll/proton-wine.git")
+                       (commit (string-append "Proton" version))))
+            (file-name (git-file-name name version))
+            (sha256
+              (base32 "0zzzf759l7cmvl3h1mpyv783la0axhrkx3hjwlxvhdpm3ckilcv6"))))))
+
+(define-public ge-wine64
+  (package/inherit lutris-wine64
+    (name "ge-wine64")
+    (version "7-31")
+    (source
+      (origin
+            (method git-fetch)
+            (uri (git-reference
+                       (url "https://github.com/gloriouseggroll/proton-wine.git")
+                       (commit (string-append "Proton" version))))
+            (file-name (git-file-name name version))
+            (sha256
+              (base32 "0zzzf759l7cmvl3h1mpyv783la0axhrkx3hjwlxvhdpm3ckilcv6"))))
+    (inputs (modify-inputs (package-inputs lutris-wine64)
+              (replace "lutris-wine" ge-wine)))))
 
 (define mingw-toolchain-i686
   (package
@@ -311,8 +345,8 @@ integrate Windows applications into your desktop.")
 
 (define glslang-11.12
   (package/inherit glslang
-	(name "glslang")
-	(version "11.12.0")
+        (name "glslang")
+        (version "11.12.0")
     (source
      (origin
        (method git-fetch)
