@@ -309,6 +309,21 @@ integrate Windows applications into your desktop.")
     (description #f)
     (license #f)))
 
+(define glslang-11.12
+  (package/inherit glslang
+	(name "glslang")
+	(version "11.12.0")
+    (source
+     (origin
+       (method git-fetch)
+       (uri (git-reference
+             (url "https://github.com/KhronosGroup/glslang.git")
+             (commit version)))
+       (sha256
+        (base32
+         "12a1zl8qxa28nbf6m67260c0lwdw3bqbj0jz1382wgm5px1fpqw6"))
+       (file-name (git-file-name name version))))))
+
 (define dxvk32
   ;; This package provides 32-bit dxvk libraries on 64-bit systems.
   (package
@@ -352,7 +367,7 @@ integrate Windows applications into your desktop.")
                                (invoke "i686-w64-mingw32-strip" file))
                              (find-files (string-append #$output) "\\.dll$")))))))
     (native-inputs
-     (list glslang
+     (list glslang-11.12
            mingw-toolchain-i686))
     (inputs
      (list mingw-w64-i686-winpthreads wine))
@@ -440,7 +455,7 @@ Use @command{setup_dxvk} to install the required libraries to a Wine prefix.")
             `(("dxvk32" ,dxvk32)))
            (_ '()))
        ("mingw-w64-x86_64" ,mingw-w64-x86_64)))
-    (native-inputs (list mingw-toolchain-x86_64 glslang))
+    (native-inputs (list mingw-toolchain-x86_64 glslang-11.12))
     (supported-systems '("i686-linux" "x86_64-linux"))))
 
 (define vkd3d-proton32
@@ -490,7 +505,7 @@ Use @command{setup_dxvk} to install the required libraries to a Wine prefix.")
                                (make-file-writable file)
                                (invoke "i686-w64-mingw32-strip" file))
                              (find-files (string-append #$output) "\\.dll$")))))))
-    (native-inputs (list mingw-toolchain-i686 glslang wine-staging))
+    (native-inputs (list mingw-toolchain-i686 glslang-11.12 wine-staging))
     (inputs (list mingw-w64-i686))
     (home-page "https://github.com/HansKristian-Work/vkd3d-proton")
     (synopsis #f)
@@ -556,7 +571,7 @@ Use @command{setup_dxvk} to install the required libraries to a Wine prefix.")
                                (make-file-writable file)
                                (invoke "x86_64-w64-mingw32-strip" file))
                              (find-files (string-append #$output) "\\.dll$")))))))
-    (native-inputs (list mingw-toolchain-x86_64 glslang wine64-staging vkd3d-proton32))
+    (native-inputs (list mingw-toolchain-x86_64 glslang-11.12 wine64-staging vkd3d-proton32))
     (inputs (list mingw-w64-x86_64))
     (home-page "https://github.com/HansKristian-Work/vkd3d-proton")
     (synopsis #f)
