@@ -7,6 +7,7 @@
   #:use-module (gnu packages freedesktop)
   #:use-module (gnu packages gl)
   #:use-module (gnu packages gstreamer)
+  #:use-module (gnu packages python)
   #:use-module (gnu packages xdisorg)
   #:use-module (gnu packages xorg))
 
@@ -32,18 +33,15 @@
     (arguments
      (substitute-keyword-arguments (package-arguments libepoxy)
        ((#:phases phases)
-        `(modify-phases ,phases
+        #~(modify-phases #$phases
            (replace 'patch-paths
-           (lambda* (#:key inputs #:allow-other-keys)
-             (let ((python (assoc-ref inputs "python"))
-                   (glvnd (assoc-ref inputs "libglvnd")))
+             (lambda _
                (substitute* "src/gen_dispatch.py"
-                 (("/usr/bin/env python") python))
+                 (("/usr/bin/env python") (string-append #$python "/bin/python")))
                (substitute* (find-files "." "\\.[ch]$")
-                 (("libGL.so.1") (string-append glvnd "/lib/libGL.so.1"))
-                 (("libEGL.so.1") (string-append glvnd "/lib/libEGL.so.1")))
-               #t)))))))
-    (propagated-inputs (list libglvnd libx11))
+                 (("libGL.so.1") (string-append #$libglvnd-guix "/lib/libGL.so.1"))
+                 (("libEGL.so.1") (string-append #$libglvnd-guix "/lib/libEGL.so.1")))))))))
+    (propagated-inputs (list libglvnd-guix libx11))
     (description (string-concatenate (list (package-description libepoxy) " Glvnd-enabled variant.")))))
 
 (define-public libdrm-current
