@@ -254,10 +254,8 @@ Further xorg should be configured by adding:
                                                   (string-match "([^/]*\\.so).*" file)
                                                   1))
                                           (major (cond
-                                                  ((or (string=? short "libGLX.so")
-                                                       (string=? short "libGLX_nvidia.so")
+                                                  ((or (string=? short "libGLX_nvidia.so")
                                                        (string=? short "libEGL_nvidia.so")) "0")
-                                                  ((string=? short "libGLESv2.so") "2")
                                                   (else "1")))
                                           (mid (string-append short "." major))
                                           (short-file (string-append libdir "/" short))
@@ -292,7 +290,13 @@ Further xorg should be configured by adding:
            #:install-plan
            (match (%current-system)
              ("x86_64-linux" #~'(("." "lib" #:include-regexp ("^./[^/]+\\.so")
-                                  #:exclude ("nvidia_drv.so")
+                                  #:exclude ("nvidia_drv.so"
+                                             "libEGL.so.1.1.0"
+                                             #$(string-append "libEGL.so." (package-version nvidia-driver))
+                                             "libGLESv1_CM.so.1.2.0"
+                                             "libGLESv2.so.2.1.0"
+                                             "libGL.so.1.7.0"
+                                             "libGLX.so.0")
                                   #:exclude-regexp ("libglxserver_nvidia.so.*"))
                                  ("." "lib/xorg/modules/extensions" #:include-regexp ("libglxserver_nvidia\\.so\\.*"))
                                  ("nvidia_drv.so" "lib/xorg/modules/drivers/")
