@@ -280,8 +280,8 @@ Further xorg should be configured by adding:
                                (list (string-append out "/share/vulkan/icd.d/nvidia_icd.json")
                                      (string-append out "/share/vulkan/implicit_layer.d/nvidia_layers.json")
                                      (string-append out "/share/glvnd/egl_vendor.d/10_nvidia.json")
-                                     (string-append out "/share/egl/external_platform.d/10_nvidia_wayland.json")
-                                     (string-append out "/share/egl/external_platform.d/15_nvidia_gbm.json")))
+                                     (string-append out "/share/egl/egl_external_platform.d/10_nvidia_wayland.json")
+                                     (string-append out "/share/egl/egl_external_platform.d/15_nvidia_gbm.json")))
                      (when (string=? "x86_64-linux" #$(%current-system))
                        (symlink (string-append "libglxserver_nvidia.so."
                                                #$(package-version nvidia-driver))
