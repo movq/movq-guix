@@ -285,7 +285,11 @@ Further xorg should be configured by adding:
                      (when (string=? "x86_64-linux" #$(%current-system))
                        (symlink (string-append "libglxserver_nvidia.so."
                                                #$(package-version nvidia-driver))
-                                (string-append #$output "/lib/xorg/modules/extensions/" "libglxserver_nvidia.so")))
+                                (string-append #$output "/lib/xorg/modules/extensions/" "libglxserver_nvidia.so"))
+                       (mkdir (string-append #$output "/lib/gbm"))
+                       (symlink (string-append #$output "/lib/libnvidia-allocator.so." #$(package-version nvidia-driver))
+                                (string-append #$output "/lib/gbm/nvidia-drm_gbm.so")))
+
                      #t))))
            #:install-plan
            (match (%current-system)
