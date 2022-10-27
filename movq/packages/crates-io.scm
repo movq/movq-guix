@@ -286,6 +286,27 @@ strings on the stack, when possible")
     (description "Parse Rust's attribute arguments by defining a struct.")
     (license (list license:expat license:asl2.0))))
 
+(define-public rust-structmeta-derive-0.1
+  (package
+    (name "rust-structmeta-derive")
+    (version "0.1.5")
+    (source (origin
+              (method url-fetch)
+              (uri (crate-uri "structmeta-derive" version))
+              (file-name (string-append name "-" version ".tar.gz"))
+              (sha256
+               (base32
+                "0f2rgsxfd4asr07svwznh3npcc5fr9c1ayyl6q7r289g186xxzms"))))
+    (build-system cargo-build-system)
+    (arguments
+     `(#:cargo-inputs (("rust-proc-macro2" ,rust-proc-macro2-1)
+                       ("rust-quote" ,rust-quote-1)
+                       ("rust-syn" ,rust-syn-1))))
+    (home-page "https://github.com/frozenlib/structmeta")
+    (synopsis "derive macro for structmeta crate.")
+    (description "derive macro for structmeta crate.")
+    (license (list license:expat license:asl2.0))))
+
 (define-public rust-test-strategy-0.2
   (package
     (name "rust-test-strategy")
