@@ -45,7 +45,7 @@
 (define rust-1.60
   (@@ (gnu packages rust) rust-1.60))
 
-(define rust-1.61
+(define-public rust-1.61
   (rust-bootstrapped-package
    rust-1.60 "1.61.0" "1vfs05hkf9ilk19b2vahqn8l6k17pl9nc1ky9kgspaascx8l62xd"))
 
@@ -54,10 +54,14 @@
    rust-1.61 "1.62.1" "0gqkg34ic77dcvsz69qbdng6g3zfhl6hnhx7ha1mjkyrzipvxb3j"))
 
 (define-public rust-1.63
+  (rust-bootstrapped-package
+   rust-1.61 "1.63.0" "1l4rrbzhxv88pnfq94nbyb9m6lfnjwixma3mwjkmvvs2aqlq158z"))
+
+(define-public rust-1.64
   (let ((base-rust
          (rust-bootstrapped-package
-          rust-1.62 "1.63.0"
-          "1l4rrbzhxv88pnfq94nbyb9m6lfnjwixma3mwjkmvvs2aqlq158z")))
+          rust-1.63 "1.64.0"
+          "018j720b2n12slp4xk64jc6shkncd46d621qdyzh2a8s3r49zkdk")))
     (package
       (inherit base-rust)
       (outputs (cons "rustfmt" (package-outputs base-rust)))
@@ -91,4 +95,4 @@
                     (format #f "prefix = ~s" (assoc-ref outputs "rustfmt"))))
                  (invoke "./x.py" "install" "rustfmt"))))))))))
 
-(define-public rust-current rust-1.63)
+(define-public rust-current rust-1.64)
