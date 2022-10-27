@@ -263,6 +263,29 @@ strings on the stack, when possible")
     (description "Derive macro for rkyv")
     (license license:expat)))
 
+(define-public rust-structmeta-0.1
+  (package
+    (name "rust-structmeta")
+    (version "0.1.5")
+    (source (origin
+              (method url-fetch)
+              (uri (crate-uri "structmeta" version))
+              (file-name (string-append name "-" version ".tar.gz"))
+              (sha256
+               (base32
+                "1qyjwgsgllwgi8f9yglv153pr7k81ihrmnc7rg1b57x8b8aw5n8v"))))
+    (build-system cargo-build-system)
+    (arguments
+     `(#:cargo-inputs (("rust-proc-macro2" ,rust-proc-macro2-1)
+                       ("rust-quote" ,rust-quote-1)
+                       ("rust-structmeta-derive" ,rust-structmeta-derive-0.1)
+                       ("rust-syn" ,rust-syn-1))
+       #:cargo-development-inputs (("rust-syn" ,rust-syn-1))))
+    (home-page "https://github.com/frozenlib/structmeta")
+    (synopsis "Parse Rust's attribute arguments by defining a struct.")
+    (description "Parse Rust's attribute arguments by defining a struct.")
+    (license (list license:expat license:asl2.0))))
+
 (define-public rust-test-strategy-0.2
   (package
     (name "rust-test-strategy")
