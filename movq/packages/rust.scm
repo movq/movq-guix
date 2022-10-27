@@ -55,7 +55,7 @@
 
 (define-public rust-1.63
   (rust-bootstrapped-package
-   rust-1.61 "1.63.0" "1l4rrbzhxv88pnfq94nbyb9m6lfnjwixma3mwjkmvvs2aqlq158z"))
+   rust-1.62 "1.63.0" "1l4rrbzhxv88pnfq94nbyb9m6lfnjwixma3mwjkmvvs2aqlq158z"))
 
 (define-public rust-1.64
   (let ((base-rust
