@@ -71,9 +71,13 @@
           `(modify-phases ,phases
              (add-after 'patch-cargo-checksums 'regenerate-lockfiles
                (lambda _
-                 (substitute* "src/bootstrap/Cargo.lock"
-                   (("(checksum = )\".*\"" all name)
-                    (string-append name "\"" ,(@@ (gnu packages rust) %cargo-reference-hash) "\"")))))
+                 (for-each
+                   (lambda (file)
+                     (substitute* file
+                       (("(checksum = )\".*\"" all name)
+                        (string-append name "\"" ,(@@ (gnu packages rust) %cargo-reference-hash) "\""))))
+                   '("src/bootstrap/Cargo.lock"
+                             "src/tools/rust-analyzer/Cargo.lock"))))
              (replace 'build
                ;; Phase overridden to also build rustfmt.
                (lambda* (#:key parallel-build? #:allow-other-keys)
