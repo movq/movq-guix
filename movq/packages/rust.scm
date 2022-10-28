@@ -34,6 +34,7 @@
   #:use-module (gnu packages)
   #:use-module (gnu packages llvm)
   #:use-module (guix build utils)
+  #:use-module (guix build-system copy)
   #:use-module (guix download)
   #:use-module (guix git-download)
   #:use-module (guix packages)
@@ -105,3 +106,21 @@
                  (invoke "./x.py" "install" "rustfmt"))))))))))
 
 (define-public rust-current rust-1.64)
+
+(define-public rust-current-src
+  (hidden-package
+   (package
+     (inherit rust-current)
+     (name "rust-src")
+     (build-system copy-build-system)
+     (native-inputs '())
+     (inputs '())
+     (native-search-paths '())
+     (outputs '("out"))
+     (arguments
+      `(#:install-plan
+        '(("library" "lib/rustlib/src/rust/library")
+          ("src" "lib/rustlib/src/rust/src"))))
+     (synopsis "Source code for the Rust standard library")
+     (description "This package provide source code for the Rust standard
+library, only use by rust-analyzer, make rust-analyzer out of the box."))))
