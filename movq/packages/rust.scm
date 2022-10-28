@@ -69,6 +69,10 @@
        (substitute-keyword-arguments (package-arguments base-rust)
          ((#:phases phases)
           `(modify-phases ,phases
+	     (add-after 'patch-cargo-checksums 'regenerate-lockfiles
+	       (lambda _
+		 (with-directory-excursion "src/bootstrap"
+		   (invoke "cargo" "generate-lockfile"))))
              (replace 'build
                ;; Phase overridden to also build rustfmt.
                (lambda* (#:key parallel-build? #:allow-other-keys)
