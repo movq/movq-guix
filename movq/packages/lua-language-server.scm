@@ -58,7 +58,6 @@ exec ~a/lib/lua-language-server/bin/lua-language-server -E ~a/lib/lua-language-s
   --logpath=$TMPPATH/log --metapath=$TMPPATH/metapath
 " #$bash-minimal #$coreutils-minimal #$output #$output)))
                       (chmod (string-append #$output "/bin/lua-language-server") #o555)))))))
-    (inputs (list lua))
     (native-inputs (list ninja))
     (home-page #f)
     (description #f)
