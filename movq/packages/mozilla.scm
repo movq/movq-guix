@@ -159,5 +159,5 @@
         (prepend lld-wrapper)
         (replace "clang" clang-14)
         (replace "llvm" llvm-14)
-        (replace "rust" rust-1.63)
+        (replace "rust" rust-current)
         (delete "wasm32-wasi-clang-toolchain")))))
