@@ -32,7 +32,6 @@
 
 (define-module (movq packages rust)
   #:use-module (gnu packages)
-  #:use-module (gnu packages llvm)
   #:use-module (guix build utils)
   #:use-module (guix build-system copy)
   #:use-module (guix download)
@@ -65,7 +64,7 @@
           "018j720b2n12slp4xk64jc6shkncd46d621qdyzh2a8s3r49zkdk")))
     (package
       (inherit base-rust)
-      (outputs (cons "rustfmt" (package-outputs base-rust)))
+      (outputs (cons* "clippy" "rustfmt" (package-outputs base-rust)))
       (arguments
        (substitute-keyword-arguments (package-arguments base-rust)
          ((#:phases phases)
@@ -77,19 +76,21 @@
                      (substitute* file
                        (("(checksum = )\".*\"" all name)
                         (string-append name "\"" ,(@@ (gnu packages rust) %cargo-reference-hash) "\""))))
-                   '("src/bootstrap/Cargo.lock"
+                           '("src/bootstrap/Cargo.lock"
                              "src/tools/rust-analyzer/Cargo.lock"))))
              (replace 'build
                ;; Phase overridden to also build rustfmt.
-               (lambda* (#:key parallel-build? #:allow-other-keys)
+               (lambda* (#:key outputs parallel-build? #:allow-other-keys)
                  (let ((job-spec (string-append
                                   "-j" (if parallel-build?
                                            (number->string (parallel-job-count))
                                            "1"))))
+                   (setenv "RUSTFLAGS" (string-append "-C link-arg=-Wl,-rpath=" (assoc-ref outputs "out") "/lib"))
                    (invoke "./x.py" job-spec "build"
                            "library/std" ;rustc
                            "src/tools/cargo"
-                           "src/tools/rustfmt"))))
+                           "src/tools/rustfmt"
+                           "src/tools/clippy"))))
              (replace 'install
                ;; Phase overridden to also install rustfmt.
                (lambda* (#:key outputs #:allow-other-keys)
@@ -103,7 +104,12 @@
                    ;; Adjust the prefix to the 'rustfmt' output.
                    (("prefix = \"[^\"]*\"")
                     (format #f "prefix = ~s" (assoc-ref outputs "rustfmt"))))
-                 (invoke "./x.py" "install" "rustfmt"))))))))))
+                 (invoke "./x.py" "install" "rustfmt")
+                 (substitute* "config.toml"
+                   ;; Adjust the prefix to the 'clippy output.
+                   (("prefix = \"[^\"]*\"")
+                    (format #f "prefix = ~s" (assoc-ref outputs "clippy"))))
+                 (invoke "./x.py" "install" "clippy"))))))))))
 
 (define-public rust-current rust-1.64)
 
