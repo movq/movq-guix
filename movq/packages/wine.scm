@@ -379,7 +379,9 @@ integrate Windows applications into your desktop.")
      (list #:system "i686-linux"
            #:configure-flags '(list "--cross-file"
                                     (string-append (assoc-ref %build-inputs "source")
-                                                   "/build-win32.txt"))
+                                                   "/build-win32.txt")
+                                    "-Dc_link_args=-static -static-libgcc"
+                                    "-Dcpp_link_args=-static -static-libgcc -static-libstdc++")
            #:phases
            #~(modify-phases %standard-phases
                (add-before 'configure 'setenv
@@ -424,7 +426,9 @@ Use @command{setup_dxvk} to install the required libraries to a Wine prefix.")
                                                   #$(match (%current-system)
                                                      ("x86_64-linux" "64")
                                                      (_ "32"))
-                                                  ".txt"))
+                                                  ".txt")
+                                   "-Dc_link_args=-static -static-libgcc"
+                                   "-Dcpp_link_args=-static -static-libgcc -static-libstdc++")
        #:phases
        #~(modify-phases %standard-phases
            #$@(if (string=? (%current-system) "x86_64-linux")
@@ -507,7 +511,9 @@ Use @command{setup_dxvk} to install the required libraries to a Wine prefix.")
     (build-system meson-build-system)
     (arguments
      (list #:configure-flags
-           #~(list "--cross-file" (string-append (assoc-ref %build-inputs "source") "/build-win32.txt"))
+           #~(list "--cross-file" (string-append (assoc-ref %build-inputs "source") "/build-win32.txt")
+                   "-Dc_link_args=-static -static-libgcc"
+                   "-Dcpp_link_args=-static -static-libgcc -static-libstdc++")
            #:phases
            #~(modify-phases %standard-phases
                (add-after 'unpack 'fix-git-version
@@ -552,7 +558,9 @@ Use @command{setup_dxvk} to install the required libraries to a Wine prefix.")
     (name "vkd3d-proton")
     (arguments
      (list #:configure-flags
-           #~(list "--cross-file" (string-append (assoc-ref %build-inputs "source") "/build-win64.txt"))
+           #~(list "--cross-file" (string-append (assoc-ref %build-inputs "source") "/build-win64.txt")
+                   "-Dc_link_args=-static -static-libgcc"
+                   "-Dcpp_link_args=-static -static-libgcc -static-libstdc++")
            #:phases
            #~(modify-phases %standard-phases
                (add-after 'unpack 'fix-git-version
