@@ -254,7 +254,7 @@ integrate Windows applications into your desktop.")
 (define-public ge-wine
   (package/inherit lutris-wine
     (name "ge-wine")
-    (version "7-31")
+    (version "7-33")
     (source
       (origin
             (method git-fetch)
@@ -263,12 +263,12 @@ integrate Windows applications into your desktop.")
                        (commit (string-append "Proton" version))))
             (file-name (git-file-name name version))
             (sha256
-              (base32 "0zzzf759l7cmvl3h1mpyv783la0axhrkx3hjwlxvhdpm3ckilcv6"))))))
+              (base32 "1ks84xlgxqaasrx3q4dfxlxs60i74cdy4gn6nka8grlkp66q19gl"))))))
 
 (define-public ge-wine64
   (package/inherit lutris-wine64
     (name "ge-wine64")
-    (version "7-31")
+    (version "7-33")
     (source
       (origin
             (method git-fetch)
@@ -277,7 +277,7 @@ integrate Windows applications into your desktop.")
                        (commit (string-append "Proton" version))))
             (file-name (git-file-name name version))
             (sha256
-              (base32 "0zzzf759l7cmvl3h1mpyv783la0axhrkx3hjwlxvhdpm3ckilcv6"))))
+              (base32 "1ks84xlgxqaasrx3q4dfxlxs60i74cdy4gn6nka8grlkp66q19gl"))))
     (inputs (modify-inputs (package-inputs lutris-wine64)
               (replace "lutris-wine" ge-wine)))))
 
@@ -362,7 +362,7 @@ integrate Windows applications into your desktop.")
   ;; This package provides 32-bit dxvk libraries on 64-bit systems.
   (package
     (name "dxvk32")
-    (version "1.10.1-952-g69d7af42")
+    (version "1.10.1-971-g0b9f785b")
     (home-page "https://github.com/doitsujin/dxvk/")
     (source (origin
               (method git-fetch)
@@ -373,7 +373,7 @@ integrate Windows applications into your desktop.")
               (file-name (git-file-name name version))
               (sha256
                (base32
-                "0xcpxnwra6l569qfb4d611b467wicfdmwawc9r2mlrl24mhczy7h"))))
+                "0l2rdqkv1mcwr1sp5icljfb9lfvgby42b4wyp9jdl7lpff0my3z3"))))
     (build-system meson-build-system)
     (arguments
      (list #:system "i686-linux"
@@ -499,7 +499,7 @@ Use @command{setup_dxvk} to install the required libraries to a Wine prefix.")
 (define vkd3d-proton32
   (package
     (name "vkd3d-proton32")
-    (version "2.6-361-gf6843ac2")
+    (version "2.7")
     (source (origin
               (method git-fetch)
               (uri (git-reference
@@ -507,7 +507,7 @@ Use @command{setup_dxvk} to install the required libraries to a Wine prefix.")
                     (commit (string-append "v" version))
                     (recursive? #t)))
               (file-name (git-file-name name version))
-              (sha256 (base32 "0hq51wfnr4z79fbkzscrlqx0rksky8sxw6jbi39dqq63drc40377"))))
+              (sha256 (base32 "1cm4zxdlxgxv24mqjwv907b2l1ayr17x3iyv5n151lyfa2vz8l8n"))))
     (build-system meson-build-system)
     (arguments
      (list #:configure-flags
