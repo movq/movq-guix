@@ -73,14 +73,7 @@
   (package/inherit ungoogled-chromium
   (name "googled-chromium")
   (source (origin
-            (method url-fetch)
-            (uri (string-append "https://commondatastorage.googleapis.com"
-                                "/chromium-browser-official/chromium-"
-                                %chromium-version ".tar.xz"))
-            (sha256
-              (base32
-               "14niglj8q6mfkmgbbjhaipmyhv6vryx93crswb1xa871a14in28g"))
-            (modules '((guix build utils)))
+            (inherit (package-source ungoogled-chromium))
             (snippet (force googled-chromium-snippet))))
   (arguments
    (substitute-keyword-arguments (package-arguments ungoogled-chromium)
