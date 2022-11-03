@@ -60,16 +60,14 @@
 (define-public rust-1.64
   (let ((base-rust
          (rust-bootstrapped-package
-          rust-1.63 "1.64.0"
-          "018j720b2n12slp4xk64jc6shkncd46d621qdyzh2a8s3r49zkdk")))
+          rust-1.63 "1.64.0" "018j720b2n12slp4xk64jc6shkncd46d621qdyzh2a8s3r49zkdk")))
     (package
       (inherit base-rust)
-      (outputs (cons* "clippy" "rustfmt" (package-outputs base-rust)))
       (arguments
-       (substitute-keyword-arguments (package-arguments base-rust)
-         ((#:phases phases)
-          `(modify-phases ,phases
-             (add-after 'patch-cargo-checksums 'regenerate-lockfiles
+        (substitute-keyword-arguments (package-arguments base-rust)
+          ((#:phases phases)
+           `(modify-phases ,phases
+              (add-after 'patch-cargo-checksums 'fix-lockfiles
                (lambda _
                  (for-each
                    (lambda (file)
@@ -77,7 +75,20 @@
                        (("(checksum = )\".*\"" all name)
                         (string-append name "\"" ,(@@ (gnu packages rust) %cargo-reference-hash) "\""))))
                            '("src/bootstrap/Cargo.lock"
-                             "src/tools/rust-analyzer/Cargo.lock"))))
+                             "src/tools/rust-analyzer/Cargo.lock")))))))))))
+
+(define-public rust-1.65
+  (let ((base-rust
+         (rust-bootstrapped-package
+          rust-1.64 "1.65.0"
+          "0f005kc0vl7qyy298f443i78ibz71hmmh820726bzskpyrkvna2q")))
+    (package
+      (inherit base-rust)
+      (outputs (cons* "clippy" "rustfmt" (package-outputs base-rust)))
+      (arguments
+       (substitute-keyword-arguments (package-arguments base-rust)
+         ((#:phases phases)
+          `(modify-phases ,phases
              (replace 'build
                ;; Phase overridden to also build rustfmt.
                (lambda* (#:key outputs parallel-build? #:allow-other-keys)
@@ -111,7 +122,7 @@
                     (format #f "prefix = ~s" (assoc-ref outputs "clippy"))))
                  (invoke "./x.py" "install" "clippy"))))))))))
 
-(define-public rust-current rust-1.64)
+(define-public rust-current rust-1.65)
 
 (define-public rust-current-src
   (hidden-package
