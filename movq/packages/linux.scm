@@ -62,4 +62,5 @@
        (sha256
         (base32 "0k6ylqq4r1xzc7bbmwy1qgwpqra8shdvilwm1pvzzvilgyqkm8ys"))))
     (inputs (modify-inputs (package-inputs wireplumber)
-              (replace "pipewire" pipewire-current)))))
+              (replace "pipewire" pipewire-current)
+              (delete "elogind")))))
