@@ -187,8 +187,7 @@ Further xorg should be configured by adding:
                     version
                     (format #f "NVIDIA-Linux-x86_64-~a" version)))
        (sha256 (base32 "0iiw25ngfhd3nrlr0lc59wihcfb9ip8q9jj17p26wxnnpq04nrsi"))
-       (method url-fetch)
-       (file-name (string-append "nvidia-driver-" version "-checkout"))))
+       (method url-fetch)))
     (build-system copy-build-system)
     (arguments
      (list #:phases
