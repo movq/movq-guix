@@ -4088,8 +4088,7 @@ rust binaries as python packages")
          "0h1skd5z3245yby2bwaj2k2s9wvff6dsg1n4g4wpz9vfdld158dc"))))
     (build-system cargo-build-system)
     (arguments
-     `(#:rust ,rust-1.65
-       #:tests? #f
+      `(#:tests? #f
        #:install-source? #f             ; virtual manifest
        #:cargo-test-flags
        '("--release" "--"
@@ -4237,7 +4236,7 @@ exec -a \"$0\" \"~a\" \"$@\""
                (chdir "../..")
                (install-file "LICENSE-MIT" doc)
                (install-file "LICENSE-APACHE" doc)))))))
-    (native-inputs (list rust-current-src))
+    (native-inputs (list rust-src))
     (home-page "https://rust-analyzer.github.io/")
     (synopsis "Experimental Rust compiler front-end for IDEs")
     (description "Rust-analyzer is a modular compiler frontend for the Rust
