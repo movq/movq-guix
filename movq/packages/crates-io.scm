@@ -3975,8 +3975,7 @@ messages.")
               (patches (list (local-file "patches/maturin-hack-out-rpath.patch")))))
     (build-system cargo-build-system)
     (arguments
-     `(#:rust ,rust-1.63
-       #:cargo-inputs (("rust-anyhow" ,rust-anyhow-1)
+     `(#:cargo-inputs (("rust-anyhow" ,rust-anyhow-1)
                        ("rust-base64" ,rust-base64-0.13)
                        ("rust-bytesize" ,rust-bytesize-1)
                        ("rust-cargo-options" ,rust-cargo-options-0.3)
