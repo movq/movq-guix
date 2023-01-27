@@ -157,7 +157,4 @@
     (native-inputs
       (modify-inputs (package-native-inputs firefox)
         (prepend lld-wrapper)
-        (replace "clang" clang-14)
-        (replace "llvm" llvm-14)
-        (replace "rust" rust-current)
         (delete "wasm32-wasi-clang-toolchain")))))
