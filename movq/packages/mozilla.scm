@@ -45,7 +45,6 @@
   #:use-module (guix gexp)
   #:use-module (guix packages)
   #:use-module (guix utils)
-  #:use-module (movq packages rust)
   #:use-module (nongnu packages mozilla))
 
 ; Firefox with some tweaks:

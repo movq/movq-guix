@@ -11,8 +11,7 @@
   #:use-module (gnu packages crates-graphics)
   #:use-module (gnu packages rust)
   #:use-module (gnu packages python)
-  #:use-module (nongnu packages mozilla)
-  #:use-module (movq packages rust))
+  #:use-module (nongnu packages mozilla))
 
 (define-public rust-version-check-0.9
   (package
@@ -4090,7 +4089,7 @@ rust binaries as python packages")
          "0h1skd5z3245yby2bwaj2k2s9wvff6dsg1n4g4wpz9vfdld158dc"))))
     (build-system cargo-build-system)
     (arguments
-     `(#:rust ,rust-current
+     `(#:rust ,rust-1.65
        #:tests? #f
        #:install-source? #f             ; virtual manifest
        #:cargo-test-flags
