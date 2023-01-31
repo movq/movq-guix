@@ -11,8 +11,8 @@
 
 (define-public linux-movq-xps13
   (customize-linux #:linux linux
-                   #:deconfig ,(local-file "files/xps13.config")))
+                   #:defconfig (local-file "files/xps13.config")))
 
 (define-public linux-alienware
   (customize-linux #:linux linux
-                   #:deconfig ,(local-file "files/alienware.config")))
+                   #:defconfig (local-file "files/alienware.config")))
