@@ -50,7 +50,6 @@
 ; Firefox with some tweaks:
 ;  * Enable link-time optimisation
 ;  * Use -march=native -O3 CFLAGS
-;  * Use latest rust and llvm
 ;  * Disable WASM stuff
 (define-public firefox-movq
   (package
@@ -88,7 +87,7 @@
               "--disable-tests"
               "--disable-updater"
               "--enable-pulseaudio"
-              "--enable-crash-reporter"
+              "--enable-crashreporter"
 
               ;; Build details
               "--disable-debug"
@@ -96,9 +95,7 @@
               "--enable-release"
               "--enable-optimize"
               "--enable-strip"
-              "--disable-elf-hack"
-              "--enable-linker=lld"
-              "--enable-lto=cross")))
+              "--disable-elf-hack")))
         ((#:phases phases)
            #~(modify-phases #$phases
              (replace 'configure
@@ -121,7 +118,7 @@
                  (setenv "CXX" "clang++")
                  (setenv "CFLAGS" "-march=sandybridge -O3")
                  (setenv "CXXFLAGS" "-march=sandybridge -O3")
-                 (setenv "RUSTFLAGS" "-C opt-level=3 -C target-cpu=sandybridge")
+                 (setenv "RUSTFLAGS" "-C target-cpu=sandybridge")
 
                  (setenv "MOZ_NOSPAM" "1")
 
@@ -155,5 +152,4 @@
                  (invoke "./mach" "configure")))))))
     (native-inputs
       (modify-inputs (package-native-inputs firefox)
-        (prepend lld-wrapper)
         (delete "wasm32-wasi-clang-toolchain")))))
