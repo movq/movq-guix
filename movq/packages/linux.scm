@@ -10,9 +10,11 @@
   #:use-module (srfi srfi-1))
 
 (define-public linux-movq-xps13
-  (customize-linux #:linux linux
+  (customize-linux #:name "linux-movq-xps13"
+                   #:linux linux
                    #:defconfig (local-file "files/xps13.config")))
 
 (define-public linux-alienware
-  (customize-linux #:linux linux
+  (customize-linux #:name "linux-alienware"
+                   #:linux linux
                    #:defconfig (local-file "files/alienware.config")))
