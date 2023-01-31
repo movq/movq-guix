@@ -10,11 +10,21 @@
   #:use-module (srfi srfi-1))
 
 (define-public linux-movq-xps13
-  (customize-linux #:name "linux-movq-xps13"
-                   #:linux linux
-                   #:defconfig (local-file "files/xps13.config")))
+  (let ((base (customize-linux #:name "linux-movq-xps13"
+                               #:linux linux
+                               #:defconfig (local-file "files/xps13.config"))))
+    (package/inherit base
+      (native-inputs
+        (modify-inputs (package-native-inputs base)
+          (append zstd))))))
 
 (define-public linux-alienware
-  (customize-linux #:name "linux-alienware"
-                   #:linux linux
-                   #:defconfig (local-file "files/alienware.config")))
+  (let ((base (customize-linux #:name "linux-alienware"
+                               #:linux linux
+                               #:defconfig (local-file "files/alienware.config"))))
+    (package/inherit base
+      (native-inputs
+        (modify-inputs (package-native-inputs base)
+          (append zstd)
+          (append zlib)
+          (append python))))))
