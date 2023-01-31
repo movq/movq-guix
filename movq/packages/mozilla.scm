@@ -88,6 +88,7 @@
               "--disable-tests"
               "--disable-updater"
               "--enable-pulseaudio"
+              "--enable-crash-reporter"
 
               ;; Build details
               "--disable-debug"
