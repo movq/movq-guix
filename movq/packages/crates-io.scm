@@ -10,6 +10,7 @@
   #:use-module (gnu packages crates-io)
   #:use-module (gnu packages crates-graphics)
   #:use-module (gnu packages rust)
+  #:use-module (gnu packages rust-apps)
   #:use-module (gnu packages python)
   #:use-module (nongnu packages mozilla))
 
