@@ -49,7 +49,7 @@
            pixman
            libseat
            wayland
-           wayland-protocols-next
+           wayland-protocols
            xcb-util-errors
            xcb-util-wm
            xorg-server-xwayland))
@@ -107,7 +107,7 @@ modules for building a Wayland compositor.")
                   wayland
                   wlroots-current))
     (native-inputs
-     (list linux-pam mesa-glvnd pkg-config scdoc wayland-protocols-next))
+     (list linux-pam mesa-glvnd pkg-config scdoc wayland-protocols))
     (home-page "https://github.com/swaywm/sway")
     (synopsis "Wayland compositor compatible with i3")
     (description "Sway is a i3-compatible Wayland compositor.")
@@ -128,7 +128,7 @@ modules for building a Wayland compositor.")
         (base32 "0dra4xkb4n15npwa3bawcdab96l9l40ffv3hack3f2myyagy3prf"))))
     (build-system meson-build-system)
     (inputs (list cairo gdk-pixbuf wayland))
-    (native-inputs (list pkg-config scdoc wayland-protocols-next))
+    (native-inputs (list pkg-config scdoc wayland-protocols))
     (home-page "https://github.com/swaywm/sway")
     (synopsis "Screen wallpaper utility for Wayland compositors")
     (description "Swaybg is a wallpaper utility for Wayland compositors.")

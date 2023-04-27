@@ -84,9 +84,6 @@
      (modify-inputs (package-propagated-inputs mesa)
        (replace "libdrm" libdrm-current)
        (append libglvnd-guix)))
-    (inputs
-     (modify-inputs (package-inputs mesa)
-       (replace "wayland-protocols" wayland-protocols-next)))
     (description (string-concatenate (list (package-description mesa) " Glvnd-enabled variant.")))))
 
 (define-public glvd
