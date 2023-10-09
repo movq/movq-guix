@@ -66,7 +66,7 @@
   #:use-module (srfi srfi-1))
 
 ; Used for closed-source packages
-(define nvidia-version "520.56.06")
+(define nvidia-version "535.113.01")
 
 (define-public nvidia-driver
   (package
@@ -77,7 +77,7 @@
        (uri (format #f "http://us.download.nvidia.com/XFree86/Linux-x86_64/~a/~a.run"
                     version
                     (format #f "NVIDIA-Linux-x86_64-~a" version)))
-       (sha256 (base32 "0iiw25ngfhd3nrlr0lc59wihcfb9ip8q9jj17p26wxnnpq04nrsi"))
+       (sha256 (base32 "10bl2qiqy3haqzij4xfrg1as7z32ikrlnh30kxg7y6z8vzc09qr8"))
        (method url-fetch)))
     (build-system linux-module-build-system)
     (arguments
@@ -186,7 +186,7 @@ Further xorg should be configured by adding:
        (uri (format #f "http://us.download.nvidia.com/XFree86/Linux-x86_64/~a/~a.run"
                     version
                     (format #f "NVIDIA-Linux-x86_64-~a" version)))
-       (sha256 (base32 "0iiw25ngfhd3nrlr0lc59wihcfb9ip8q9jj17p26wxnnpq04nrsi"))
+       (sha256 (base32 "10bl2qiqy3haqzij4xfrg1as7z32ikrlnh30kxg7y6z8vzc09qr8"))
        (method url-fetch)))
     (build-system copy-build-system)
     (arguments
@@ -393,7 +393,7 @@ configuration, creating application profiles, gpu monitoring and more.")
   (package
     (inherit nvidia-libs)
     (name "nvda")
-    (version "520.56")
+    (version "535113")
     (source #f)
     (build-system trivial-build-system)
     (arguments
