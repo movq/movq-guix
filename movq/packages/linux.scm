@@ -11,7 +11,7 @@
 
 (define-public linux-movq-xps13
   (let ((base (customize-linux #:name "linux-movq-xps13"
-                               #:linux linux
+                               #:linux linux-6.5
                                #:defconfig (local-file "files/xps13.config"))))
     (package/inherit base
       (native-inputs
@@ -20,7 +20,7 @@
 
 (define-public linux-alienware
   (let ((base (customize-linux #:name "linux-alienware"
-                               #:linux linux
+                               #:linux linux-6.5
                                #:defconfig (local-file "files/alienware.config"))))
     (package/inherit base
       (native-inputs
