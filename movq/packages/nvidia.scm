@@ -318,7 +318,7 @@ Further xorg should be configured by adding:
                                ("15_nvidia_gbm.json" "share/egl/egl_external_platform.d/")))
              (_ #~'()))))
     (supported-systems '("i686-linux" "x86_64-linux"))
-    (native-inputs (list patchelf perl python-2 which xz))
+    (native-inputs (list patchelf perl python-2 which xz zstd))
     (inputs (list atk
                   cairo
                   gdk-pixbuf
