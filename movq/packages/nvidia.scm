@@ -145,7 +145,8 @@
        perl
        python-2
        which
-       xz))
+       xz
+       zstd))
     (inputs
      (list
        atk
