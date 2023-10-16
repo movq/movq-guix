@@ -18,6 +18,15 @@
         (modify-inputs (package-native-inputs base)
           (append zstd))))))
 
+(define-public linux-movq-xps15
+  (let ((base (customize-linux #:name "linux-movq-xps15"
+                               #:linux linux-6.5
+                               #:defconfig (local-file "files/xps15.config"))))
+    (package/inherit base
+      (native-inputs
+        (modify-inputs (package-native-inputs base)
+          (append zstd))))))
+
 (define-public linux-movq-generic
   (let ((base (customize-linux #:name "linux-movq-generic"
                                #:linux linux-6.5
