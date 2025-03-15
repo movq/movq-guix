@@ -9,16 +9,9 @@
   #:use-module (guix packages)
   #:use-module (srfi srfi-1))
 
-(define patched-linux
-  (origin
-    (inherit (package-source linux-6.13))
-    (patches (cons (local-file "files/0001-drm-amd-display-Increase-vblank-offdelay-for-PSR-pan.patch")
-                     (origin-patches (package-source linux-6.13))))))
-
 (define-public linux-movq-fw13
   (let ((base (customize-linux #:name "linux-movq-fw13"
                                #:linux linux-6.13
-                               #:source patched-linux
                                #:defconfig (local-file "files/fw13-v6.13.config"))))
     (package/inherit base
       (native-inputs
